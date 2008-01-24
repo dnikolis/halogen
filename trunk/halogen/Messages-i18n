@@ -1,0 +1,4 @@
+#!/bin/sh
+APPDIR=`dirname $0`;
+java -cp "$APPDIR/src:$APPDIR/bin:/Developer/Java/gwt-mac-1.4.61/gwt-user.jar:/Developer/Java/gwt-mac-1.4.61/gwt-dev-mac.jar" com.google.gwt.i18n.tools.I18NSync -out $APPDIR/src org.pentaho.halogen.client.Messages -createMessages ;
+

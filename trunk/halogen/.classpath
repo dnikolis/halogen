@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="test"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/Developer/Java/gwt-mac-1.4.61/gwt-user.jar"/>
+	<classpathentry kind="var" path="JUNIT_HOME/junit.jar"/>
+	<classpathentry kind="lib" path="lib/third-party/asm-2.2.3.jar"/>
+	<classpathentry kind="lib" path="lib/third-party/asm-commons-2.2.3.jar"/>
+	<classpathentry kind="lib" path="lib/third-party/commons-collections.jar"/>
+	<classpathentry kind="lib" path="lib/third-party/commons-dbcp.jar"/>
+	<classpathentry kind="lib" path="lib/third-party/commons-logging.jar"/>
+	<classpathentry kind="lib" path="lib/third-party/commons-math-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/third-party/commons-pool.jar"/>
+	<classpathentry kind="lib" path="lib/third-party/commons-vfs.jar"/>
+	<classpathentry kind="lib" path="lib/third-party/eigenbase-properties.jar"/>
+	<classpathentry kind="lib" path="lib/third-party/eigenbase-resgen.jar"/>
+	<classpathentry kind="lib" path="lib/third-party/eigenbase-xom.jar"/>
+	<classpathentry kind="lib" path="lib/third-party/javacup.jar"/>
+	<classpathentry kind="lib" path="lib/third-party/log4j-1.2.9.jar"/>
+	<classpathentry kind="lib" path="lib/third-party/mondrian.jar"/>
+	<classpathentry kind="lib" path="lib/third-party/olap4j.jar" sourcepath="/Developer/Java/olap4j-0.9.3/olap4j-0.9.3/src"/>
+	<classpathentry kind="lib" path="lib/third-party/mysql-connector-java-5.0.7-bin.jar"/>
+	<classpathentry kind="lib" path="lib/third-party/gwt-dnd-2.0.5.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/Developer/Java/gwt-mac-1.4.61/gwt-dnd-2.0.5-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
