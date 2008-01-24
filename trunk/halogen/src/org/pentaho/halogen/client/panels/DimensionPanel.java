@@ -42,7 +42,16 @@ import com.google.gwt.user.client.ui.Widget;
  *
  */
 public class DimensionPanel extends FlexTable {
+  private static final String AXIS_NONE = "none"; //$NON-NLS-1$
+  private static final String AXIS_UNUSED = "UNUSED"; //$NON-NLS-1$
+  private static final String AXIS_FILTER = "FILTER"; //$NON-NLS-1$
+  private static final String AXIS_COLUMNS = "COLUMNS"; //$NON-NLS-1$
+  private static final String AXIS_ROWS = "ROWS"; //$NON-NLS-1$
+  private static final String AXIS_PAGES = "PAGES"; //$NON-NLS-1$
+  private static final String AXIS_CHAPTERS = "CHAPTERS"; //$NON-NLS-1$
+  private static final String AXIS_SECTIONS = "SECTIONS"; //$NON-NLS-1$
 
+  
   Messages messages;
   Olap4JServiceAsync olap4JService;
   Button moveToRowButton;
@@ -127,13 +136,13 @@ public class DimensionPanel extends FlexTable {
     moveToRowButton.addClickListener(new ClickListener() {
       public void onClick(Widget sender) {
         String dimName = dimensionsList.getValue(dimensionsList.getSelectedIndex());
-        olap4JService.moveDimension("ROWS", dimName, new AsyncCallback() { //$NON-NLS-1$
+        olap4JService.moveDimension(AXIS_ROWS, dimName, new AsyncCallback() {
           public void onSuccess(Object result) {
             boolean success = ((Boolean)result).booleanValue();
             if (success) {
               List axis = new ArrayList();
-              axis.add("none"); //$NON-NLS-1$
-              axis.add("ROWS"); //$NON-NLS-1$
+              axis.add(AXIS_NONE);
+              axis.add(AXIS_ROWS);
               populateDimensions(axis);
             }
           }          
@@ -152,13 +161,13 @@ public class DimensionPanel extends FlexTable {
     moveToColButton.addClickListener(new ClickListener() {
       public void onClick(Widget sender) {
         String dimName = dimensionsList.getValue(dimensionsList.getSelectedIndex());
-        olap4JService.moveDimension("COLUMNS", dimName, new AsyncCallback() { //$NON-NLS-1$
+        olap4JService.moveDimension(AXIS_COLUMNS, dimName, new AsyncCallback() {
           public void onSuccess(Object result) {
             boolean success = ((Boolean)result).booleanValue();
             if (success) {
               List axis = new ArrayList();
-              axis.add("none"); //$NON-NLS-1$
-              axis.add("COLUMNS"); //$NON-NLS-1$
+              axis.add(AXIS_NONE);
+              axis.add(AXIS_COLUMNS);
               populateDimensions(axis);
             }
           }          
@@ -176,13 +185,13 @@ public class DimensionPanel extends FlexTable {
     moveToFilterButton.addClickListener(new ClickListener() {
       public void onClick(Widget sender) {
         String dimName = dimensionsList.getValue(dimensionsList.getSelectedIndex());
-        olap4JService.moveDimension("FILTER", dimName, new AsyncCallback() { //$NON-NLS-1$
+        olap4JService.moveDimension(AXIS_FILTER, dimName, new AsyncCallback() {
           public void onSuccess(Object result) {
             boolean success = ((Boolean)result).booleanValue();
             if (success) {
               List axis = new ArrayList();
-              axis.add("none"); //$NON-NLS-1$
-              axis.add("FILTER"); //$NON-NLS-1$
+              axis.add(AXIS_NONE);
+              axis.add(AXIS_FILTER);
               populateDimensions(axis);
             }
           }         
@@ -198,17 +207,19 @@ public class DimensionPanel extends FlexTable {
 
   public void populateDimensions() {
     List axis = new ArrayList();
-    axis.add("none"); //$NON-NLS-1$
-    axis.add("ROWS"); //$NON-NLS-1$
-    axis.add("COLUMNS"); //$NON-NLS-1$
+    axis.add(AXIS_NONE);
+    axis.add(AXIS_ROWS);
+    axis.add(AXIS_COLUMNS);
+    axis.add(AXIS_FILTER);
     populateDimensions(axis);
   }
+  
   /**
    * 
    */
   public void populateDimensions( List axis) {
-    if (axis.contains("none")) { //$NON-NLS-1$
-      olap4JService.getDimensions("none", new AsyncCallback() { //$NON-NLS-1$
+    if (axis.contains(AXIS_NONE)) {
+      olap4JService.getDimensions(AXIS_NONE, new AsyncCallback() {
         public void onSuccess(Object result) {
           String[] dimStrs = (String[]) result;
           dimensionsList.clear();
@@ -226,8 +237,8 @@ public class DimensionPanel extends FlexTable {
       });
     }
     
-    if (axis.contains("ROWS")) { //$NON-NLS-1$
-      olap4JService.getDimensions("ROWS", new AsyncCallback() { //$NON-NLS-1$
+    if (axis.contains(AXIS_ROWS)) {
+      olap4JService.getDimensions(AXIS_ROWS, new AsyncCallback() { //$NON-NLS-1$
   
         public void onSuccess(Object result) {
           String[] dimStrs = (String[]) result;
@@ -245,8 +256,8 @@ public class DimensionPanel extends FlexTable {
       });
     }
     
-    if (axis.contains("COLUMNS")) { //$NON-NLS-1$
-      olap4JService.getDimensions("COLUMNS", new AsyncCallback() { //$NON-NLS-1$
+    if (axis.contains(AXIS_COLUMNS)) {
+      olap4JService.getDimensions(AXIS_COLUMNS, new AsyncCallback() {
   
         public void onSuccess(Object result) {
           String[] dimStrs = (String[]) result;
@@ -264,8 +275,8 @@ public class DimensionPanel extends FlexTable {
       });
     }
     
-    if (axis.contains("FILTER")) { //$NON-NLS-1$
-      olap4JService.getDimensions("FILTER", new AsyncCallback() { //$NON-NLS-1$
+    if (axis.contains(AXIS_FILTER)) { //$NON-NLS-1$
+      olap4JService.getDimensions(AXIS_FILTER, new AsyncCallback() { //$NON-NLS-1$
 
         public void onSuccess(Object result) {
           String[] dimStrs = (String[]) result;
