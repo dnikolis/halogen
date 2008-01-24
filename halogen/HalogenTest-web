@@ -1,0 +1,3 @@
+#!/bin/sh
+APPDIR=`dirname $0`;
+java -XstartOnFirstThread -Dgwt.args="-web -out www-test" -cp "$APPDIR/src:$APPDIR/test:$APPDIR/bin:/Applications/eclipse/plugins/org.junit_3.8.2.v200706111738/junit.jar:/Developer/Java/gwt-mac-1.4.61/gwt-user.jar:/Developer/Java/gwt-mac-1.4.61/gwt-dev-mac.jar" junit.textui.TestRunner org.pentaho.halogen.client.HalogenTest "$@";
