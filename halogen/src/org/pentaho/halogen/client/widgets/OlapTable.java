@@ -22,7 +22,6 @@ import org.pentaho.halogen.client.util.CellInfo;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.RootPanel;
 
 /**
  * @author wseyler
