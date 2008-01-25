@@ -49,8 +49,6 @@ public class OlapTable extends FlexTable {
   }
 
   protected void refresh() {
-    OlapTableDragController dragController = new OlapTableDragController(RootPanel.get(), true);
-
     while (this.getRowCount() > 0) {
       this.removeRow(0);
     }
@@ -63,11 +61,9 @@ public class OlapTable extends FlexTable {
           if (cellInfo.isColumnHeader()) {
             label.addStyleName("olap-col-header-label"); //$NON-NLS-1$
             cellFormatter.addStyleName(r, c, "olap-col-header-cell"); //$NON-NLS-1$
-            dragController.makeDraggable(label);
-          } else if (cellInfo.isRowHeader()) {
+           } else if (cellInfo.isRowHeader()) {
             label.addStyleName("olap-row-header-label"); //$NON-NLS-1$
             cellFormatter.addStyleName(r, c, "olap-row-header-cell"); //$NON-NLS-1$
-            dragController.makeDraggable(label);
           } else {
             label.addStyleName("olap-cell-label"); //$NON-NLS-1$
             String colorValueStr = cellInfo.getColorValue();
