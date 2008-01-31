@@ -25,15 +25,15 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
  */
 public interface Olap4JServiceAsync {
   public void getServerInfo(AsyncCallback callback);
-  public void connect(String connectStr, AsyncCallback callback);
-  public void getCubes(AsyncCallback callback);
-  public void setCube(String cubeName, AsyncCallback callback);
-  public void getDimensions(String axis, AsyncCallback callback);
-  public void getMembers(String dimName, AsyncCallback callback);
-  public void moveDimension(String axisName, String DimName, AsyncCallback callback);
-  public void validateQuery(AsyncCallback callback);
-  public void executeQuery(AsyncCallback callback);
-  public void executeMDXStr(String mdx, AsyncCallback callback);
-  public void createSelection(String dimName, String memberName, Integer selectionType, AsyncCallback callback);
-  public void swapAxis(AsyncCallback callback);
+  public void connect(String connectStr, String guid, AsyncCallback callback);
+  public void getCubes(String guid, AsyncCallback callback);
+  public void setCube(String cubeName, String guid, AsyncCallback callback);
+  public void getDimensions(String axis, String guid, AsyncCallback callback);
+  public void getMembers(String dimName, String guid, AsyncCallback callback);
+  public void moveDimension(String axisName, String DimName, String guid, AsyncCallback callback);
+  public void validateQuery(String guid, AsyncCallback callback);
+  public void executeQuery(String guid, AsyncCallback callback);
+  public void executeMDXStr(String mdx, String guid, AsyncCallback callback);
+  public void createSelection(String dimName, String memberName, Integer selectionType, String guid, AsyncCallback callback);
+  public void swapAxis(String guid, AsyncCallback callback);
 }

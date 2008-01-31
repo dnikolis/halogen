@@ -35,17 +35,21 @@ import com.google.gwt.user.client.ui.Widget;
  *
  */
 public class ReportPanel extends FlexTable {
-  Messages messages;
+
   Olap4JServiceAsync olap4JService;
+  String guid;
+  Messages messages;
+
   TextArea mdxText;
   Button executeMDXBtn;
   Button executeQueryBtn;
   Button swapAxisBtn;
   OlapTable olapTable;
   
-  public ReportPanel(Olap4JServiceAsync olap4JService, Messages messages) {
+  public ReportPanel(Olap4JServiceAsync olap4JService, String guid, Messages messages) {
     super();
     this.olap4JService = olap4JService;
+    this.guid = guid;
     this.messages = messages;
     init();
   }
@@ -76,7 +80,7 @@ public class ReportPanel extends FlexTable {
     executeMDXBtn = new Button(messages.execute_mdx(), new ClickListener(){
 
       public void onClick(Widget sender) {
-        olap4JService.executeMDXStr(mdxText.getText(), new AsyncCallback() {
+        olap4JService.executeMDXStr(mdxText.getText(), guid, new AsyncCallback() {
 
           public void onSuccess(Object result) {
             olapTable.setData((CellInfo[][])result);
@@ -94,7 +98,7 @@ public class ReportPanel extends FlexTable {
     executeQueryBtn = new Button(messages.execute_query(), new ClickListener() {
 
       public void onClick(Widget sender) {
-        olap4JService.executeQuery(new AsyncCallback() {
+        olap4JService.executeQuery(guid, new AsyncCallback() {
 
           public void onSuccess(Object result) {
             olapTable.setData((CellInfo[][])result);
@@ -114,7 +118,7 @@ public class ReportPanel extends FlexTable {
     swapAxisBtn = new Button(messages.swap_axis(), new ClickListener() {
 
       public void onClick(Widget sender) {
-        olap4JService.swapAxis(new AsyncCallback() {
+        olap4JService.swapAxis(guid, new AsyncCallback() {
 
           public void onFailure(Throwable caught) {
             Window.alert(messages.no_server_data(caught.toString()));   

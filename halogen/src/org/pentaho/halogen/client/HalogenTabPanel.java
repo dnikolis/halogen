@@ -31,14 +31,12 @@ import com.google.gwt.user.client.ui.TabPanel;
 public class HalogenTabPanel extends TabPanel {
   Messages messages;
   Olap4JServiceAsync olap4JService;
+  String guid;
   
-  ConnectionPanel connectionPanel;
-  DimensionPanel dimensionPanel;
-  ReportPanel reportPanel;
-  
-  public HalogenTabPanel(Olap4JServiceAsync olap4JService, Messages messages) {
+  public HalogenTabPanel(Olap4JServiceAsync olap4JService, String guid, Messages messages) {
     super();
     this.olap4JService = olap4JService;
+    this.guid = guid;
     this.messages = messages;
     
     init();
@@ -48,40 +46,17 @@ public class HalogenTabPanel extends TabPanel {
    * 
    */
   private void init() {
-    dimensionPanel = new DimensionPanel(olap4JService, messages);
-    connectionPanel = new ConnectionPanel(olap4JService, messages, dimensionPanel);
-    reportPanel = new ReportPanel(olap4JService, messages);
+    DimensionPanel dimensionPanel = new DimensionPanel(olap4JService, guid, messages);
+    ConnectionPanel connectionPanel = new ConnectionPanel(olap4JService, guid, messages);
+    connectionPanel.addConnectionListener(dimensionPanel);
+    ReportPanel reportPanel = new ReportPanel(olap4JService, guid, messages);
     
-    this.add(connectionPanel, "Connection");
-    this.add(dimensionPanel, "Selections");
-    this.add(reportPanel, "Report");
+    this.add(connectionPanel, messages.connection());
+    this.add(dimensionPanel, messages.selections());
+    this.add(reportPanel, messages.report());
     
     selectTab(0);
     this.addTabListener(connectionPanel);
   }
 
-  public ConnectionPanel getConnectionPanel() {
-    return connectionPanel;
-  }
-
-  public void setConnectionPanel(ConnectionPanel connectionPanel) {
-    this.connectionPanel = connectionPanel;
-  }
-
-  public DimensionPanel getDimensionPanel() {
-    return dimensionPanel;
-  }
-
-  public void setDimensionPanel(DimensionPanel dimensionPanel) {
-    this.dimensionPanel = dimensionPanel;
-  }
-
-  public ReportPanel getReportPanel() {
-    return reportPanel;
-  }
-
-  public void setReportPanel(ReportPanel reportPanel) {
-    this.reportPanel = reportPanel;
-  }
-  
 }

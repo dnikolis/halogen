@@ -29,15 +29,15 @@ import com.google.gwt.user.client.rpc.RemoteService;
  */
 public interface Olap4JService extends RemoteService {
   public String getServerInfo();
-  public Boolean connect(String connectStr);
-  public String[] getCubes();
-  public Boolean setCube(String cubeName);
-  public String[] getDimensions(String axis);
-  public Boolean moveDimension(String axisName, String DimName);
-  public StringTree getMembers(String dimName);
-  public Boolean validateQuery();
-  public CellInfo[][] executeQuery();
-  public CellInfo[][] executeMDXStr(String mdx);
-  public Boolean createSelection(String dimName, String memberName, Integer selectionType);
-  public CellInfo[][] swapAxis();
+  public Boolean connect(String connectStr, String guid);
+  public String[] getCubes(String guid);
+  public Boolean setCube(String cubeName, String guid);
+  public String[] getDimensions(String axis, String guid);
+  public Boolean moveDimension(String axisName, String DimName, String guid);
+  public StringTree getMembers(String dimName, String guid);
+  public Boolean validateQuery(String guid);
+  public CellInfo[][] executeQuery(String guid);
+  public CellInfo[][] executeMDXStr(String mdx, String guid);
+  public Boolean createSelection(String dimName, String memberName, Integer selectionType, String guid);
+  public CellInfo[][] swapAxis(String guid);
 }

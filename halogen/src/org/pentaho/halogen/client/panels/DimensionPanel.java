@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.pentaho.halogen.client.Messages;
+import org.pentaho.halogen.client.listeners.ConnectionListener;
 import org.pentaho.halogen.client.services.Olap4JServiceAsync;
 import org.pentaho.halogen.client.util.StringTree;
 import org.pentaho.halogen.client.widgets.MemberSelectionLabel;
@@ -41,7 +42,7 @@ import com.google.gwt.user.client.ui.Widget;
  * @author wseyler
  *
  */
-public class DimensionPanel extends FlexTable {
+public class DimensionPanel extends FlexTable implements ConnectionListener {
   private static final String AXIS_NONE = "none"; //$NON-NLS-1$
   private static final String AXIS_UNUSED = "UNUSED"; //$NON-NLS-1$
   private static final String AXIS_FILTER = "FILTER"; //$NON-NLS-1$
@@ -51,9 +52,9 @@ public class DimensionPanel extends FlexTable {
   private static final String AXIS_CHAPTERS = "CHAPTERS"; //$NON-NLS-1$
   private static final String AXIS_SECTIONS = "SECTIONS"; //$NON-NLS-1$
 
-  
-  Messages messages;
   Olap4JServiceAsync olap4JService;
+  String guid;
+  Messages messages;
   Button moveToRowButton;
   Button moveToColButton;
   Button moveToFilterButton;
@@ -66,9 +67,10 @@ public class DimensionPanel extends FlexTable {
   
   ClickListener memberClickListener;
   
-  public DimensionPanel(Olap4JServiceAsync olap4JService, Messages messages) {
+  public DimensionPanel(Olap4JServiceAsync olap4JService, String guid, Messages messages) {
     super();
     this.olap4JService = olap4JService;
+    this.guid = guid;
     this.messages = messages;
     init();
   }
@@ -77,12 +79,12 @@ public class DimensionPanel extends FlexTable {
    * 
    */
   private void init() {
-    selectionModePopup = new SelectionModePopup(olap4JService, messages);
+    selectionModePopup = new SelectionModePopup(olap4JService, guid, messages);
     cubeListBox = new ListBox();
     
     cubeListBox.addChangeListener(new ChangeListener() {
       public void onChange(Widget sender) {
-        olap4JService.setCube(cubeListBox.getItemText(cubeListBox.getSelectedIndex()), new AsyncCallback() {
+        olap4JService.setCube(cubeListBox.getItemText(cubeListBox.getSelectedIndex()), guid, new AsyncCallback() {
           public void onSuccess(Object result) {
             populateDimensions();
           }         
@@ -136,7 +138,7 @@ public class DimensionPanel extends FlexTable {
     moveToRowButton.addClickListener(new ClickListener() {
       public void onClick(Widget sender) {
         String dimName = dimensionsList.getValue(dimensionsList.getSelectedIndex());
-        olap4JService.moveDimension(AXIS_ROWS, dimName, new AsyncCallback() {
+        olap4JService.moveDimension(AXIS_ROWS, dimName, guid, new AsyncCallback() {
           public void onSuccess(Object result) {
             boolean success = ((Boolean)result).booleanValue();
             if (success) {
@@ -161,7 +163,7 @@ public class DimensionPanel extends FlexTable {
     moveToColButton.addClickListener(new ClickListener() {
       public void onClick(Widget sender) {
         String dimName = dimensionsList.getValue(dimensionsList.getSelectedIndex());
-        olap4JService.moveDimension(AXIS_COLUMNS, dimName, new AsyncCallback() {
+        olap4JService.moveDimension(AXIS_COLUMNS, dimName, guid, new AsyncCallback() {
           public void onSuccess(Object result) {
             boolean success = ((Boolean)result).booleanValue();
             if (success) {
@@ -185,7 +187,7 @@ public class DimensionPanel extends FlexTable {
     moveToFilterButton.addClickListener(new ClickListener() {
       public void onClick(Widget sender) {
         String dimName = dimensionsList.getValue(dimensionsList.getSelectedIndex());
-        olap4JService.moveDimension(AXIS_FILTER, dimName, new AsyncCallback() {
+        olap4JService.moveDimension(AXIS_FILTER, dimName, guid, new AsyncCallback() {
           public void onSuccess(Object result) {
             boolean success = ((Boolean)result).booleanValue();
             if (success) {
@@ -219,7 +221,7 @@ public class DimensionPanel extends FlexTable {
    */
   public void populateDimensions( List axis) {
     if (axis.contains(AXIS_NONE)) {
-      olap4JService.getDimensions(AXIS_NONE, new AsyncCallback() {
+      olap4JService.getDimensions(AXIS_NONE, guid, new AsyncCallback() {
         public void onSuccess(Object result) {
           String[] dimStrs = (String[]) result;
           dimensionsList.clear();
@@ -238,7 +240,7 @@ public class DimensionPanel extends FlexTable {
     }
     
     if (axis.contains(AXIS_ROWS)) {
-      olap4JService.getDimensions(AXIS_ROWS, new AsyncCallback() { //$NON-NLS-1$
+      olap4JService.getDimensions(AXIS_ROWS, guid, new AsyncCallback() {
   
         public void onSuccess(Object result) {
           String[] dimStrs = (String[]) result;
@@ -257,7 +259,7 @@ public class DimensionPanel extends FlexTable {
     }
     
     if (axis.contains(AXIS_COLUMNS)) {
-      olap4JService.getDimensions(AXIS_COLUMNS, new AsyncCallback() {
+      olap4JService.getDimensions(AXIS_COLUMNS, guid, new AsyncCallback() {
   
         public void onSuccess(Object result) {
           String[] dimStrs = (String[]) result;
@@ -275,8 +277,8 @@ public class DimensionPanel extends FlexTable {
       });
     }
     
-    if (axis.contains(AXIS_FILTER)) { //$NON-NLS-1$
-      olap4JService.getDimensions(AXIS_FILTER, new AsyncCallback() { //$NON-NLS-1$
+    if (axis.contains(AXIS_FILTER)) {
+      olap4JService.getDimensions(AXIS_FILTER, guid, new AsyncCallback() {
 
         public void onSuccess(Object result) {
           String[] dimStrs = (String[]) result;
@@ -296,7 +298,7 @@ public class DimensionPanel extends FlexTable {
   
   protected Tree getDimTree(String dimName) {
     final Tree dimTree = new Tree();
-    olap4JService.getMembers(dimName, new AsyncCallback() {
+    olap4JService.getMembers(dimName, guid, new AsyncCallback() {
       public void onSuccess(Object result) {
         StringTree memberTree = (StringTree) result;
         Label rootLabel = new Label(memberTree.getValue());
@@ -334,7 +336,7 @@ public class DimensionPanel extends FlexTable {
   }
       
   public void getCubes() {
-    olap4JService.getCubes(new AsyncCallback() {
+    olap4JService.getCubes(guid, new AsyncCallback() {
       public void onSuccess(Object result1) {
         if (result1 != null) {
           cubeListBox.clear();
@@ -343,7 +345,7 @@ public class DimensionPanel extends FlexTable {
             cubeListBox.addItem(cubeNames[i]);
           }
         }
-        olap4JService.setCube(cubeListBox.getItemText(cubeListBox.getSelectedIndex()), new AsyncCallback() {
+        olap4JService.setCube(cubeListBox.getItemText(cubeListBox.getSelectedIndex()), guid, new AsyncCallback() {
           public void onSuccess(Object result2) {
             populateDimensions();
           }         
@@ -362,6 +364,21 @@ public class DimensionPanel extends FlexTable {
     moveToColButton.setEnabled(dimensionsList.getSelectedIndex() != -1);
     moveToRowButton.setEnabled(dimensionsList.getSelectedIndex() != -1);
     moveToFilterButton.setEnabled(dimensionsList.getSelectedIndex() != -1);
+  }
+
+  /* (non-Javadoc)
+   * @see org.pentaho.halogen.client.listeners.ConnectionListener#onConnectionBroken(com.google.gwt.user.client.ui.Widget)
+   */
+  public void onConnectionBroken(Widget sender) {
+    // TODO Auto-generated method stub
+    
+  }
+
+  /* (non-Javadoc)
+   * @see org.pentaho.halogen.client.listeners.ConnectionListener#onConnectionMade(com.google.gwt.user.client.ui.Widget)
+   */
+  public void onConnectionMade(Widget sender) {
+    getCubes();
   }
   
 }

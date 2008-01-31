@@ -23,8 +23,9 @@ public class Halogen implements EntryPoint {
     ServiceDefTarget endpoint = (ServiceDefTarget) olap4JService;
     String moduleRelativeURL = GWT.getModuleBaseURL() + "olap4j"; //$NON-NLS-1$
     endpoint.setServiceEntryPoint(moduleRelativeURL);
+    String guid = Long.toString(System.currentTimeMillis());
     
-    HalogenTabPanel tabPanel = new HalogenTabPanel(olap4JService, messages);
+    HalogenTabPanel tabPanel = new HalogenTabPanel(olap4JService, guid, messages);
     RootPanel root = RootPanel.get();
     root.add(tabPanel);
   }

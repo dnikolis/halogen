@@ -64,6 +64,14 @@ public interface Messages extends com.google.gwt.i18n.client.Messages {
   String member();
 
   /**
+   * Translated "Selections".
+   * 
+   * @return translated "Selections"
+   * @gwt.key selections
+   */
+  String selections();
+
+  /**
    * Translated "Execute Query Model".
    * 
    * @return translated "Execute Query Model"
@@ -128,12 +136,28 @@ public interface Messages extends com.google.gwt.i18n.client.Messages {
   String welcome(String arg0);
 
   /**
+   * Translated "Connection".
+   * 
+   * @return translated "Connection"
+   * @gwt.key connection
+   */
+  String connection();
+
+  /**
    * Translated "Swap Axis".
    * 
    * @return translated "Swap Axis"
    * @gwt.key swap_axis
    */
   String swap_axis();
+
+  /**
+   * Translated "Report".
+   * 
+   * @return translated "Report"
+   * @gwt.key report
+   */
+  String report();
 
   /**
    * Translated "Dimensions".
