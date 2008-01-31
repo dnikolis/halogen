@@ -18,7 +18,7 @@
 	<classpathentry kind="lib" path="lib/third-party/eigenbase-xom.jar"/>
 	<classpathentry kind="lib" path="lib/third-party/javacup.jar"/>
 	<classpathentry kind="lib" path="lib/third-party/log4j-1.2.9.jar"/>
-	<classpathentry kind="lib" path="lib/third-party/mondrian.jar"/>
+	<classpathentry kind="lib" path="lib/third-party/mondrian.jar" sourcepath="/Developer/Java/olap4j-0.9.3/olap4j-0.9.3-src.zip"/>
 	<classpathentry kind="lib" path="lib/third-party/olap4j.jar" sourcepath="/Developer/Java/olap4j-0.9.3/olap4j-0.9.3/src"/>
 	<classpathentry kind="lib" path="lib/third-party/mysql-connector-java-5.0.7-bin.jar"/>
 	<classpathentry kind="output" path="bin"/>

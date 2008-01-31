@@ -18,13 +18,14 @@
 package org.pentaho.halogen.client.panels;
 
 import org.pentaho.halogen.client.Messages;
+import org.pentaho.halogen.client.listeners.ConnectionListener;
+import org.pentaho.halogen.client.listeners.ConnectionListenerCollection;
+import org.pentaho.halogen.client.listeners.SourcesConnectionEvents;
 import org.pentaho.halogen.client.services.Olap4JServiceAsync;
 
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.ChangeListener;
-import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.SourcesTabEvents;
 import com.google.gwt.user.client.ui.TabListener;
@@ -35,20 +36,22 @@ import com.google.gwt.user.client.ui.Widget;
  * @author wseyler
  *
  */
-public class ConnectionPanel extends FlexTable implements TabListener {
-  Messages messages;
+public class ConnectionPanel extends FlexTable implements TabListener, SourcesConnectionEvents {
+
   Olap4JServiceAsync olap4JService;
-  Button connectButton;
+  String guid;
+  Messages messages;
+  
   TextArea connectionText;
   static String queryTypeGroup = "QUERY_TYPE"; //$NON-NLS-1$
   boolean connectionEstablished = false;
-  DimensionPanel dimPanel;
+  ConnectionListenerCollection connectionListeners;
   
-  public ConnectionPanel(Olap4JServiceAsync olap4JService, Messages messages, DimensionPanel dimPanel) {
+  public ConnectionPanel(Olap4JServiceAsync olap4JService, String guid, Messages messages) {
     super();
     this.olap4JService = olap4JService;
+    this.guid = guid;
     this.messages = messages;
-    this.dimPanel = dimPanel;
     init();
   }
 
@@ -62,36 +65,15 @@ public class ConnectionPanel extends FlexTable implements TabListener {
     connectionText.addChangeListener(new ChangeListener() {
       public void onChange(Widget sender) {
         setConnectionEstablished(false);
+        connect(connectionText.getText());
       }    
     });
     connectionText.setWidth("300px"); //$NON-NLS-1$
     connectionText.setHeight("100px"); //$NON-NLS-1$
     connectionText.setText("jdbc:mondrian:Jdbc=jdbc:mysql://localhost:3306/foodmart?user=foodmart&password=foodmart;"+ //$NON-NLS-1$
-                           "Catalog=/Users/wseyler/Downloads/mondrian-2.4.2.9831/demo/FoodMart.xml"); //$NON-NLS-1$
+                           "Catalog=/Users/wseyler/Documents/workspace-trunk/pentaho-solutions/samples/analysis/FoodMart.xml"); //$NON-NLS-1$
     this.setWidget(0, 1, connectionText);
-    connectButton = new Button(messages.connect(), new ClickListener(){
-      public void onClick(Widget sender) {
-        if (!isConnectionEstablished()) {
-          olap4JService.connect(connectionText.getText(), new AsyncCallback() {
-            public void onSuccess(Object result) {
-              Boolean booleanResult = (Boolean)result;
-              if (booleanResult.booleanValue()) {
-                setConnectionEstablished(true);
-                dimPanel.getCubes();
-              } else {
-                Window.alert(messages.no_connection());
-                setConnectionEstablished(false);
-              }
-            }
-            public void onFailure(Throwable caught) {
-              Window.alert(messages.no_connection_param(caught.getLocalizedMessage()));
-              setConnectionEstablished(false);
-            }      
-          });
-        }
-      }     
-    });
-    this.setWidget(0, 2, connectButton);
+    connect(connectionText.getText());
   }
 
   /* (non-Javadoc)
@@ -99,7 +81,7 @@ public class ConnectionPanel extends FlexTable implements TabListener {
    */
   public boolean onBeforeTabSelected(SourcesTabEvents sender, int tabIndex) {
     if (!isConnectionEstablished()) {
-      Window.alert(messages.no_connection());
+      connect(connectionText.getText());
     }
     return isConnectionEstablished();
   }
@@ -118,6 +100,46 @@ public class ConnectionPanel extends FlexTable implements TabListener {
 
   public void setConnectionEstablished(boolean connectionEstablished) {
     this.connectionEstablished = connectionEstablished;
+  }
+  
+  public void connect(String connectionStr) {
+    if (!isConnectionEstablished()) {
+      olap4JService.connect(connectionStr, guid, new AsyncCallback() {
+        public void onSuccess(Object result) {
+          Boolean booleanResult = (Boolean)result;
+          if (booleanResult.booleanValue()) {
+            setConnectionEstablished(true);
+            connectionListeners.fireConnectionMade(ConnectionPanel.this);
+          } else {
+            setConnectionEstablished(false);
+            connectionListeners.fireConnectionBroken(ConnectionPanel.this);
+          }
+        }
+        public void onFailure(Throwable caught) {
+          Window.alert(messages.no_connection_param(caught.getLocalizedMessage()));
+          setConnectionEstablished(false);
+        }      
+      });
+    }
+  }
+
+  /* (non-Javadoc)
+   * @see org.pentaho.halogen.client.listeners.SourcesConnectionEvents#addConnectionListener(org.pentaho.halogen.client.listeners.ConnectionListener)
+   */
+  public void addConnectionListener(ConnectionListener listener) {
+    if (connectionListeners == null) {
+      connectionListeners = new ConnectionListenerCollection();
+    }
+    connectionListeners.add(listener);
+  }
+
+  /* (non-Javadoc)
+   * @see org.pentaho.halogen.client.listeners.SourcesConnectionEvents#removeClickListener(org.pentaho.halogen.client.listeners.ConnectionListener)
+   */
+  public void removeClickListener(ConnectionListener listener) {
+    if (connectionListeners != null) {
+      connectionListeners.remove(listener);
+    }
   }
   
 }

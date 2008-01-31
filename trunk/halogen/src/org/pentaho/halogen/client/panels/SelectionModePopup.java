@@ -43,18 +43,20 @@ public class SelectionModePopup extends PopupPanel {
   public static final int INCLUDE_CHILDREN = 2;
   public static final int SIBLINGS = 3;
 
-
-  Messages messages;
   Olap4JServiceAsync olap4JService;
+  String guid;
+  Messages messages;
+  
   MenuBar menuBar;
   
   Integer selectionValue = new Integer(0); // Member
   Widget source;
 
-  public SelectionModePopup(Olap4JServiceAsync olap4JService, Messages messages) {
+  public SelectionModePopup(Olap4JServiceAsync olap4JService, String guid, Messages messages) {
     super(false, true);
     
     this.olap4JService = olap4JService;
+    this.guid = guid;
     this.messages = messages;
         
     init();
@@ -130,7 +132,7 @@ public class SelectionModePopup extends PopupPanel {
     public void execute() {
       final MemberSelectionLabel targetLabel = (MemberSelectionLabel)getSource();
       String dimName = getDimensionName(targetLabel);
-      getOlap4JService().createSelection(dimName, targetLabel.getText(), new Integer(selectionMode), new AsyncCallback() {
+      getOlap4JService().createSelection(dimName, targetLabel.getText(), new Integer(selectionMode), guid, new AsyncCallback() {
         public void onFailure(Throwable caught) {
           Window.alert(messages.no_selection_set(caught.getLocalizedMessage()));
         }
