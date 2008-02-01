@@ -75,7 +75,7 @@ public class ReportPanel extends FlexTable {
                     "FROM [Sales]" ); //$NON-NLS-1$
     this.setWidget(0, 1, mdxText);
     olapTable = new OlapTable();
-    getFlexCellFormatter().setColSpan(1, 0, 2);
+    getFlexCellFormatter().setColSpan(1, 0, 4);
     this.setWidget(1, 0, olapTable);
     executeMDXBtn = new Button(messages.execute_mdx(), new ClickListener(){
 
@@ -94,7 +94,7 @@ public class ReportPanel extends FlexTable {
       }
       
     });
-    this.setWidget(2, 2, executeMDXBtn);
+    this.setWidget(2, 0, executeMDXBtn);
     executeQueryBtn = new Button(messages.execute_query(), new ClickListener() {
 
       public void onClick(Widget sender) {
@@ -113,7 +113,7 @@ public class ReportPanel extends FlexTable {
       }
       
     });
-    this.setWidget(2, 3, executeQueryBtn);
+    this.setWidget(2, 1, executeQueryBtn);
     
     swapAxisBtn = new Button(messages.swap_axis(), new ClickListener() {
 
@@ -132,6 +132,6 @@ public class ReportPanel extends FlexTable {
       }
       
     });
-    this.setWidget(2, 4, swapAxisBtn);
+    this.setWidget(2, 2, swapAxisBtn);
   }
 }

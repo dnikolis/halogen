@@ -28,14 +28,19 @@ import com.google.gwt.user.client.ui.Label;
  *
  */
 public class OlapTable extends FlexTable {
-
+  CellInfo[][] olapData = null;
+  boolean showParentMembers = true;
+  
   public OlapTable() {
     super();
     addStyleName("olap-table"); //$NON-NLS-1$
   }
-
-  CellInfo[][] olapData = null;
   
+  public OlapTable(boolean showParentMembers) {
+    this();
+    this.showParentMembers = showParentMembers;
+  }
+
   public void setData(CellInfo[][] olapData) {
     setData(olapData, true);
   }
@@ -76,6 +81,14 @@ public class OlapTable extends FlexTable {
         }
       }
     }    
+  }
+
+  public boolean isShowParentMembers() {
+    return showParentMembers;
+  }
+
+  public void setShowParentMembers(boolean showParentMembers) {
+    this.showParentMembers = showParentMembers;
   }
   
 }

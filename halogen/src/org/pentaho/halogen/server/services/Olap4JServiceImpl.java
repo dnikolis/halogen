@@ -342,17 +342,21 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
     
     int rowMemberWidth = 0;
     for (Position position : rowPositions) {
-      rowMemberWidth = Math.max(rowMemberWidth, position.getMembers().size());
+      for (Member member: position.getMembers()) {
+        rowMemberWidth = Math.max(rowMemberWidth, member.getLevel().getDepth());
+      }
     }
     colCount += rowMemberWidth;
     
     int colMemberHeight = 0;
     for (Position position : colPositions) {
-      colMemberHeight = Math.max(colMemberHeight, position.getMembers().size());
+      for (Member member: position.getMembers()) {
+        colMemberHeight = Math.max(colMemberHeight, member.getLevel().getDepth());
+      }
     }
     rowCount += colMemberHeight;
 
-    CellInfo[][] values = new CellInfo[rowCount][colCount];
+    CellInfo[][] values = new CellInfo[rowCount+1][colCount+1];
 
     // Populate the column members
     for (int c=0; c<colPositions.size(); c++) {
@@ -360,11 +364,16 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
       for (int r=0; r<colPosition.getMembers().size(); r++) {
         Member mbr = colPosition.getMembers().get(r);
         
-        CellInfo cellInfo = new CellInfo();
-        cellInfo.setFormattedValue(mbr.getName());
-        cellInfo.setColumnHeader(true);
-        
-        values[r][c+rowMemberWidth] = cellInfo;
+        int rowOffset = colMemberHeight;
+        while (mbr != null) {
+          CellInfo cellInfo = new CellInfo();
+          cellInfo.setFormattedValue(mbr.getName());
+          cellInfo.setColumnHeader(true);    
+          values[r+rowOffset][c+rowMemberWidth+1] = cellInfo;
+          
+          rowOffset--;
+          mbr = mbr.getParentMember();
+        }
       }
     }
     
@@ -374,11 +383,16 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
       for (int c=0; c<rowPosition.getMembers().size(); c++) {
         Member mbr = rowPosition.getMembers().get(c);
         
-        CellInfo cellInfo = new CellInfo();
-        cellInfo.setFormattedValue(mbr.getName());
-        cellInfo.setRowHeader(true);
-        
-        values[r+colMemberHeight][c] = cellInfo;
+        int colOffset = rowMemberWidth;
+        while (mbr != null) {
+          CellInfo cellInfo = new CellInfo();
+          cellInfo.setFormattedValue(mbr.getName());
+          cellInfo.setRowHeader(true);
+          values[r+colMemberHeight+1][c+colOffset] = cellInfo;
+          
+          colOffset--;
+          mbr = mbr.getParentMember();
+        }
       }
     }
     
@@ -398,7 +412,7 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
         }
         cellInfo.setFormattedValue(getValueString(cellValue));
         cellInfo.setColorValue(getColorValue(cell.getFormattedValue()));
-        values[r+colMemberHeight][c+rowMemberWidth] = cellInfo;
+        values[r+colMemberHeight+1][c+rowMemberWidth+1] = cellInfo;
       }          
     }
     return values;
