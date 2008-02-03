@@ -18,7 +18,7 @@
 package org.pentaho.halogen.client.services;
 
 
-import org.pentaho.halogen.client.util.CellInfo;
+import org.pentaho.halogen.client.util.OlapData;
 import org.pentaho.halogen.client.util.StringTree;
 
 import com.google.gwt.user.client.rpc.RemoteService;
@@ -36,8 +36,8 @@ public interface Olap4JService extends RemoteService {
   public Boolean moveDimension(String axisName, String DimName, String guid);
   public StringTree getMembers(String dimName, String guid);
   public Boolean validateQuery(String guid);
-  public CellInfo[][] executeQuery(String guid);
-  public CellInfo[][] executeMDXStr(String mdx, String guid);
+  public OlapData executeQuery(String guid);
+  public OlapData executeMDXStr(String mdx, String guid);
   public Boolean createSelection(String dimName, String memberName, Integer selectionType, String guid);
-  public CellInfo[][] swapAxis(String guid);
+  public OlapData swapAxis(String guid);
 }

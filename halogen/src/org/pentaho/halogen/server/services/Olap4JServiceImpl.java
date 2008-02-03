@@ -45,7 +45,11 @@ import org.olap4j.query.QueryAxis;
 import org.olap4j.query.QueryDimension;
 import org.olap4j.query.Selection;
 import org.pentaho.halogen.client.services.Olap4JService;
+import org.pentaho.halogen.client.util.CellData;
 import org.pentaho.halogen.client.util.CellInfo;
+import org.pentaho.halogen.client.util.ColumnHeaders;
+import org.pentaho.halogen.client.util.OlapData;
+import org.pentaho.halogen.client.util.RowHeaders;
 import org.pentaho.halogen.client.util.StringTree;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
@@ -83,11 +87,9 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
         return false;
       }
     } catch (ClassNotFoundException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
       return false;
     } catch (SQLException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
       return false;
     }
@@ -107,7 +109,6 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
       }
       return cubeNames;
     } catch (OlapException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
     return null;
@@ -155,7 +156,6 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
         query = new Query(guid, cube);
         queryCache.put(guid, query);
       } catch (SQLException e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
         return new String[0];
       }
@@ -185,7 +185,6 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
         query = new Query(this.getThreadLocalRequest().getSession().toString(), cube);
         queryCache.put(guid, query);
       } catch (SQLException e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
         return new Boolean(false);
       }
@@ -212,7 +211,6 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
           uniqueNameList.add(member.getUniqueName());
         }
       } catch (OlapException e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
       }
     }
@@ -255,15 +253,15 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
     return new Boolean(query != null && query.validate());
   }
   
-  public CellInfo[][] executeQuery(String guid) {
+  public OlapData executeQuery(String guid) {
     Query query = queryCache.get(guid);
     if (query == null) {
-      return new CellInfo[0][0];
+      return new OlapData();
     }
     
     try {
       CellSet results = query.execute();
-      return CellSet2CellInfo(results);  
+      return cellSet2OlapData(results);  
     } catch (OlapException e) {
       e.printStackTrace();
       return null;
@@ -273,13 +271,13 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
     }
   }
   
-  public CellInfo[][] executeMDXStr(String mdx, String guid) {
+  public OlapData executeMDXStr(String mdx, String guid) {
     OlapConnection connection = connectionCache.get(guid);
 
     try {
       CellSet results = connection.prepareOlapStatement(mdx).executeQuery();
 
-      return CellSet2CellInfo(results);
+      return cellSet2OlapData(results);
     } catch (SQLException e) {
       e.printStackTrace();
       return null;
@@ -302,14 +300,16 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
     return new Boolean(true);
   }
 
-  public CellInfo[][] swapAxis(String guid) {
+  public OlapData swapAxis(String guid) {
     Query query = queryCache.get(guid);
     query.swapAxes();
     
     return executeQuery(guid);
   }
+  
   /**
    * @param dimName
+   * @param query
    * @return
    */
   private QueryDimension getQueryDimension(Query query, String dimName) {
@@ -331,72 +331,53 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
     return result;
   }
   
-  private CellInfo[][] CellSet2CellInfo(CellSet cellSet) {
+  private OlapData cellSet2OlapData(CellSet cellSet) {
     CellSetAxis rowCells = cellSet.getAxes().get(Axis.ROWS.axisOrdinal());
     CellSetAxis colCells = cellSet.getAxes().get(Axis.COLUMNS.axisOrdinal());
     
-    int rowCount = rowCells.getPositionCount();
-    int colCount = colCells.getPositionCount();
     List<Position> rowPositions = rowCells.getPositions();
     List<Position> colPositions = colCells.getPositions();
     
-    int rowMemberWidth = 0;
-    for (Position position : rowPositions) {
-      for (Member member: position.getMembers()) {
-        rowMemberWidth = Math.max(rowMemberWidth, member.getLevel().getDepth());
-      }
-    }
-    colCount += rowMemberWidth;
-    
-    int colMemberHeight = 0;
-    for (Position position : colPositions) {
-      for (Member member: position.getMembers()) {
-        colMemberHeight = Math.max(colMemberHeight, member.getLevel().getDepth());
-      }
-    }
-    rowCount += colMemberHeight;
-
-    CellInfo[][] values = new CellInfo[rowCount+1][colCount+1];
-
     // Populate the column members
+    CellInfo[][] cellGrid = new CellInfo[getMaxDepth4Positions(colPositions)+1][colPositions.size()];
     for (int c=0; c<colPositions.size(); c++) {
       Position colPosition = colPositions.get(c);
       for (int r=0; r<colPosition.getMembers().size(); r++) {
         Member mbr = colPosition.getMembers().get(r);
         
-        int rowOffset = colMemberHeight;
         while (mbr != null) {
           CellInfo cellInfo = new CellInfo();
           cellInfo.setFormattedValue(mbr.getName());
           cellInfo.setColumnHeader(true);    
-          values[r+rowOffset][c+rowMemberWidth+1] = cellInfo;
+          cellGrid[r + mbr.getLevel().getDepth()][c] = cellInfo;
           
-          rowOffset--;
           mbr = mbr.getParentMember();
         }
       }
     }
+    ColumnHeaders columnHeaders = new ColumnHeaders(cellGrid);
     
     // Populate the row members
+    cellGrid = new CellInfo[rowPositions.size()][getMaxDepth4Positions(rowPositions)+1];
     for (int r=0; r<rowPositions.size(); r++) {
       Position rowPosition = rowPositions.get(r);
       for (int c=0; c<rowPosition.getMembers().size(); c++) {
         Member mbr = rowPosition.getMembers().get(c);
         
-        int colOffset = rowMemberWidth;
         while (mbr != null) {
           CellInfo cellInfo = new CellInfo();
           cellInfo.setFormattedValue(mbr.getName());
           cellInfo.setRowHeader(true);
-          values[r+colMemberHeight+1][c+colOffset] = cellInfo;
+          cellGrid[r][c + mbr.getLevel().getDepth()] = cellInfo;
           
-          colOffset--;
           mbr = mbr.getParentMember();
         }
       }
     }
+    RowHeaders rowHeaders = new RowHeaders(cellGrid);
     
     // Populate the cells
+    cellGrid = new CellInfo[rowPositions.size()][colPositions.size()];
     for (int r=0; r<rowPositions.size(); r++) {
       for (int c=0; c<colPositions.size(); c++) {
         Cell cell = cellSet.getCell(colPositions.get(c), rowPositions.get(r));
@@ -412,10 +393,14 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
         }
         cellInfo.setFormattedValue(getValueString(cellValue));
         cellInfo.setColorValue(getColorValue(cell.getFormattedValue()));
-        values[r+colMemberHeight+1][c+rowMemberWidth+1] = cellInfo;
+        cellGrid[r][c] = cellInfo;
       }          
     }
-    return values;
+    CellData cellData = new CellData(cellGrid);
+    
+    OlapData olapData = new OlapData(rowHeaders, columnHeaders, cellData);
+    
+    return olapData;
   }
 
   /**
@@ -477,4 +462,16 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
     }
     return values[0];
   }
+  
+  private int getMaxDepth4Positions(List<Position> positions) {
+  	int depth = 0;
+    for (Position position : positions) {
+      for (Member member: position.getMembers()) {
+        depth = Math.max(depth, member.getLevel().getDepth());
+      }
+    }
+    
+    return depth;
+  }
 }
+

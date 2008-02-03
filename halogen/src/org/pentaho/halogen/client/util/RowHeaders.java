@@ -35,11 +35,11 @@ public class RowHeaders implements IOlapDataStructure, IsSerializable {
     this.rowHeaderMembers = rowHeaderMembers;
   }
 
-  public CellInfo[][] getColumnHeaderMembers() {
+  public CellInfo[][] getRowHeaderMembers() {
     return rowHeaderMembers;
   }
 
-  public void setColumnHeaderMembers(CellInfo[][] rowHeaderMembers) {
+  public void setRowHeaderMembers(CellInfo[][] rowHeaderMembers) {
     this.rowHeaderMembers = rowHeaderMembers;
   }
   
