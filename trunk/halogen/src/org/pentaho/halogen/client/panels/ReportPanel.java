@@ -19,7 +19,7 @@ package org.pentaho.halogen.client.panels;
 
 import org.pentaho.halogen.client.Messages;
 import org.pentaho.halogen.client.services.Olap4JServiceAsync;
-import org.pentaho.halogen.client.util.CellInfo;
+import org.pentaho.halogen.client.util.OlapData;
 import org.pentaho.halogen.client.widgets.OlapTable;
 
 import com.google.gwt.user.client.Window;
@@ -44,6 +44,7 @@ public class ReportPanel extends FlexTable {
   Button executeMDXBtn;
   Button executeQueryBtn;
   Button swapAxisBtn;
+  Button toggleParentMembers;
   OlapTable olapTable;
   
   public ReportPanel(Olap4JServiceAsync olap4JService, String guid, Messages messages) {
@@ -83,7 +84,7 @@ public class ReportPanel extends FlexTable {
         olap4JService.executeMDXStr(mdxText.getText(), guid, new AsyncCallback() {
 
           public void onSuccess(Object result) {
-            olapTable.setData((CellInfo[][])result);
+            olapTable.setData((OlapData)result);
           }
           
           public void onFailure(Throwable caught) {
@@ -101,7 +102,7 @@ public class ReportPanel extends FlexTable {
         olap4JService.executeQuery(guid, new AsyncCallback() {
 
           public void onSuccess(Object result) {
-            olapTable.setData((CellInfo[][])result);
+            olapTable.setData((OlapData)result);
           }
           
           public void onFailure(Throwable caught) {
@@ -125,7 +126,7 @@ public class ReportPanel extends FlexTable {
           }
 
           public void onSuccess(Object result) {
-            olapTable.setData((CellInfo[][]) result);
+            olapTable.setData((OlapData) result);
           }
           
         });
@@ -133,5 +134,15 @@ public class ReportPanel extends FlexTable {
       
     });
     this.setWidget(2, 2, swapAxisBtn);
+    
+    toggleParentMembers = new Button("Toggel Parents", new ClickListener() {
+
+			public void onClick(Widget sender) {
+				olapTable.setShowParentMembers(!olapTable.isShowParentMembers());
+				olapTable.refresh();
+			}
+    	
+    });
+    this.setWidget(2, 3, toggleParentMembers);
   }
 }

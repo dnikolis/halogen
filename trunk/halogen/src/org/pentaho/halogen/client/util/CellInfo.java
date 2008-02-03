@@ -60,4 +60,8 @@ public class CellInfo implements IsSerializable {
   public void setRawValue(String rawValue) {
     this.rawValue = rawValue;
   }
+  
+  public String toString() {
+  	return formattedValue;
+  }
 }

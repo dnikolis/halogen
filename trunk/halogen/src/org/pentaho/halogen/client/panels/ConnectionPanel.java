@@ -71,7 +71,7 @@ public class ConnectionPanel extends FlexTable implements TabListener, SourcesCo
     connectionText.setWidth("300px"); //$NON-NLS-1$
     connectionText.setHeight("100px"); //$NON-NLS-1$
     connectionText.setText("jdbc:mondrian:Jdbc=jdbc:mysql://localhost:3306/foodmart?user=foodmart&password=foodmart;"+ //$NON-NLS-1$
-                           "Catalog=/Users/wseyler/Documents/workspace-trunk/pentaho-solutions/samples/analysis/FoodMart.xml"); //$NON-NLS-1$
+                           "Catalog=/Users/wseyler/Downloads/mondrian-2.4.2.9831/demo/FoodMart.xml"); //$NON-NLS-1$
     this.setWidget(0, 1, connectionText);
     connect(connectionText.getText());
   }

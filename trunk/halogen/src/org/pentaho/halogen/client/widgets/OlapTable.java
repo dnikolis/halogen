@@ -18,6 +18,7 @@
 package org.pentaho.halogen.client.widgets;
 
 import org.pentaho.halogen.client.util.CellInfo;
+import org.pentaho.halogen.client.util.OlapData;
 
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.FlexTable;
@@ -28,7 +29,7 @@ import com.google.gwt.user.client.ui.Label;
  *
  */
 public class OlapTable extends FlexTable {
-  CellInfo[][] olapData = null;
+  OlapData olapData = null;
   boolean showParentMembers = true;
   
   public OlapTable() {
@@ -41,46 +42,110 @@ public class OlapTable extends FlexTable {
     this.showParentMembers = showParentMembers;
   }
 
-  public void setData(CellInfo[][] olapData) {
+  public void setData(OlapData olapData) {
     setData(olapData, true);
   }
   
-  public void setData(CellInfo[][] olapData, boolean refresh) {
+  public void setData(OlapData olapData, boolean refresh) {
     this.olapData = olapData;
     if (refresh) {
       refresh();
     }
   }
 
-  protected void refresh() {
+//  protected void refresh() {
+//    while (this.getRowCount() > 0) {
+//      this.removeRow(0);
+//    }
+//    for (int r=0; r<olapData.length; r++) {
+//      for (int c=0; c<olapData[r].length; c++) {
+//        if (olapData[r][c] != null) {
+//          CellInfo cellInfo = olapData[r][c];
+//          CellFormatter cellFormatter = getCellFormatter();
+//          Label label = new Label(cellInfo.getFormattedValue());
+//          if (cellInfo.isColumnHeader()) {
+//            label.addStyleName("olap-col-header-label"); //$NON-NLS-1$
+//            cellFormatter.addStyleName(r, c, "olap-col-header-cell"); //$NON-NLS-1$
+//           } else if (cellInfo.isRowHeader()) {
+//            label.addStyleName("olap-row-header-label"); //$NON-NLS-1$
+//            cellFormatter.addStyleName(r, c, "olap-row-header-cell"); //$NON-NLS-1$
+//          } else {
+//            label.addStyleName("olap-cell-label"); //$NON-NLS-1$
+//            String colorValueStr = cellInfo.getColorValue();
+//            if (colorValueStr != null) {
+//              DOM.setElementAttribute(label.getElement(), "style", "background-color: "+cellInfo.getColorValue()+";");   //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+//            } else {
+//              
+//            }
+//          }
+//          setWidget(r, c, label);
+//        }
+//      }
+//    }    
+//  }
+  
+  public void refresh() {
     while (this.getRowCount() > 0) {
       this.removeRow(0);
     }
-    for (int r=0; r<olapData.length; r++) {
-      for (int c=0; c<olapData[r].length; c++) {
-        if (olapData[r][c] != null) {
-          CellInfo cellInfo = olapData[r][c];
-          CellFormatter cellFormatter = getCellFormatter();
-          Label label = new Label(cellInfo.getFormattedValue());
-          if (cellInfo.isColumnHeader()) {
-            label.addStyleName("olap-col-header-label"); //$NON-NLS-1$
-            cellFormatter.addStyleName(r, c, "olap-col-header-cell"); //$NON-NLS-1$
-           } else if (cellInfo.isRowHeader()) {
-            label.addStyleName("olap-row-header-label"); //$NON-NLS-1$
-            cellFormatter.addStyleName(r, c, "olap-row-header-cell"); //$NON-NLS-1$
-          } else {
-            label.addStyleName("olap-cell-label"); //$NON-NLS-1$
-            String colorValueStr = cellInfo.getColorValue();
-            if (colorValueStr != null) {
-              DOM.setElementAttribute(label.getElement(), "style", "background-color: "+cellInfo.getColorValue()+";");   //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-            } else {
-              
-            }
-          }
-          setWidget(r, c, label);
-        }
-      }
-    }    
+    CellFormatter cellFormatter = getCellFormatter();
+    
+    // First process the column headers
+    CellInfo[][] headerData;
+    if (showParentMembers) {
+    	headerData = olapData.getColumnHeaders().getColumnHeaderMembers();
+    } else {
+    	headerData = new CellInfo[1][olapData.getColumnHeaders().getAcrossCount()];
+    	headerData[0] = olapData.getColumnHeaders().getColumnHeaderMembers()[olapData.getColumnHeaders().getDownCount()-1];
+    }
+    for (int row=0; row<headerData.length; row++) {
+    	for (int column=0; column<headerData[row].length; column++) {
+    		CellInfo cellInfo = headerData[row][column];
+    		if (cellInfo != null) {
+    			Label label = new Label(cellInfo.getFormattedValue());
+    			label.addStyleName("olap-col-header-label");
+    			cellFormatter.addStyleName(row, showParentMembers ? column + olapData.getRowHeaders().getAcrossCount() : column + 1, "olap-col-header-cell");
+    			setWidget(row, showParentMembers ? column + olapData.getRowHeaders().getAcrossCount() : column + 1, label);
+    		}
+    	}
+    }
+    
+    // Now we handle the row headers
+    if (showParentMembers) {
+    	headerData = olapData.getRowHeaders().getRowHeaderMembers();
+    } else {
+    	headerData = new CellInfo[olapData.getRowHeaders().getDownCount()][1];
+    	for (int row = 0; row<olapData.getRowHeaders().getDownCount(); row++) {
+    		headerData[row][0] = olapData.getRowHeaders().getCell(row, olapData.getRowHeaders().getAcrossCount() -1);
+    	}
+    }
+    for (int row=0; row<headerData.length; row++) {
+    	for (int column=0; column<headerData[row].length; column++) {
+    		CellInfo cellInfo = headerData[row][column];
+    		if (cellInfo != null) {
+    			Label label = new Label(cellInfo.getFormattedValue());
+	        label.addStyleName("olap-row-header-label");
+	        cellFormatter.addStyleName(showParentMembers ? row + olapData.getColumnHeaders().getDownCount() : row + 1, column, "olap-row-header-cell");
+	        setWidget(showParentMembers ? row + olapData.getColumnHeaders().getDownCount() : row + 1, column, label);
+    		}
+    	}
+    }
+    
+    // Now we handle the cell data
+    for (int row=0; row<olapData.getCellData().getDownCount(); row++) {
+    	for (int column=0; column<olapData.getCellData().getAcrossCount(); column++) {
+    		CellInfo cellInfo = olapData.getCellData().getCell(row, column);
+    		if (cellInfo != null) {
+    			Label label = new Label(cellInfo.getFormattedValue());
+	        label.addStyleName("olap-cell-label"); //$NON-NLS-1$
+	        String colorValueStr = cellInfo.getColorValue();
+	        if (colorValueStr != null) {
+	          DOM.setElementAttribute(label.getElement(), "style", "background-color: "+cellInfo.getColorValue()+";");   //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+	        }
+	        setWidget(showParentMembers ? row + olapData.getColumnHeaders().getDownCount() : row + 1, showParentMembers ? column + olapData.getRowHeaders().getAcrossCount() : column + 1, label);
+    		}
+    	}
+    }
   }
 
   public boolean isShowParentMembers() {
