@@ -1,0 +1,1 @@
+jdbc:moddrian:Jdbc=jdbc:mysql://localhost:3306/sampledata?user=pentaho_user&password=abcd;Catalog=/parking/pentaho/bi-server/pentaho-solutions/samples/analysis/SampleData.mondrian.xml
