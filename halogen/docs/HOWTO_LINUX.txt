@@ -1,0 +1,7 @@
+
+1. Change the launch and compile scripts to point to your Linux GWT install (unzip), where gwt-user.jar and gwt-dev-linux.jar lives
+2. Copy halogen.gwt.xml to org.pentaho.halogen.client (for some reason)
+3. In Eclipse, launch Halogen.launch and enjoy the GWT Development Shell with the OLAP navigator running.
+
+Matt
+
