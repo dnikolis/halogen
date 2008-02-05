@@ -135,7 +135,7 @@ public class ReportPanel extends FlexTable {
     });
     this.setWidget(2, 2, swapAxisBtn);
     
-    toggleParentMembers = new Button("Toggel Parents", new ClickListener() {
+    toggleParentMembers = new Button(messages.toggle_parents(), new ClickListener() {
 
 			public void onClick(Widget sender) {
 				olapTable.setShowParentMembers(!olapTable.isShowParentMembers());

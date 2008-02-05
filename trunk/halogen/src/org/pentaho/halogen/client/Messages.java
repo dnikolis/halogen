@@ -192,6 +192,14 @@ public interface Messages extends com.google.gwt.i18n.client.Messages {
   String null_value();
 
   /**
+   * Translated "Toggle Show Parents".
+   * 
+   * @return translated "Toggle Show Parents"
+   * @gwt.key toggle_parents
+   */
+  String toggle_parents();
+
+  /**
    * Translated "Connection could not be established: {0}".
    * 
    * @return translated "Connection could not be established: {0}"
