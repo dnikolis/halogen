@@ -284,11 +284,11 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
     }
   }
   
-  public Boolean createSelection(String dimName, String memberName, Integer selectionType, String guid) {
+  public Boolean createSelection(String dimName, String[] memberName, Integer selectionType, String guid) {
     Query query = queryCache.get(guid);
     Cube cube = cubeCache.get(guid);
     try {
-      Member member = cube.lookupMember(dimName, memberName);
+      Member member = cube.lookupMember(memberName);
       QueryDimension qDim = getQueryDimension(query, dimName);
       Selection.Operator selectionMode = Selection.Operator.values()[selectionType.intValue()];
       Selection selection = qDim.createSelection(member, selectionMode);
