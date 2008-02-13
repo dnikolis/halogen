@@ -17,6 +17,9 @@
 
 package org.pentaho.halogen.client.widgets;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.pentaho.halogen.client.images.SelectionModeImageBundle;
 import org.pentaho.halogen.client.panels.SelectionModePopup;
 
@@ -29,6 +32,7 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.SourcesClickEvents;
+import com.google.gwt.user.client.ui.TreeItem;
 
 /**
  * @author wseyler
@@ -41,6 +45,7 @@ public class MemberSelectionLabel extends HorizontalPanel implements SourcesClic
   
   private Label label = new Label();
   private Image image;
+  private TreeItem treeItem;
   
   public MemberSelectionLabel() {
     this.sinkEvents(Event.BUTTON_LEFT | Event.BUTTON_RIGHT);
@@ -93,6 +98,15 @@ public class MemberSelectionLabel extends HorizontalPanel implements SourcesClic
     }
   }
 
+
+  public TreeItem getTreeItem() {
+    return treeItem;
+  }
+
+  public void setTreeItem(TreeItem treeItem) {
+    this.treeItem = treeItem;
+  }
+
   public void onBrowserEvent(Event event) {
     super.onBrowserEvent(event);
     switch (DOM.eventGetType(event)) {
@@ -124,6 +138,21 @@ public class MemberSelectionLabel extends HorizontalPanel implements SourcesClic
 
   public Label getLabel() {
     return label;
+  }
+
+  /**
+   * @return
+   */
+  public String[] getFullPath() {
+    List pathList = new ArrayList();
+    pathList.add(label.getText());
+    TreeItem currentTreeItem = treeItem;
+    while (currentTreeItem.getParentItem() != null && currentTreeItem.getParentItem().getWidget() instanceof MemberSelectionLabel) {
+      currentTreeItem = currentTreeItem.getParentItem();
+      pathList.add(0, ((MemberSelectionLabel)currentTreeItem.getWidget()).getText());
+    }
+    String[] values = new String[pathList.size()];
+    return (String[]) pathList.toArray(values);
   }
 
 }

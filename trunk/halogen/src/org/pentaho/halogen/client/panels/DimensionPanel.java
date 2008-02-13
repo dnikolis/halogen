@@ -328,6 +328,7 @@ public class DimensionPanel extends FlexTable implements ConnectionListener {
       }     
     });
     TreeItem childItem = new TreeItem(memberLabel);
+    memberLabel.setTreeItem(childItem);
     parent.addItem(childItem);
     for (int i=0; i<node.getChildren().size(); i++) {
       createPathForMember(childItem, (StringTree)node.getChildren().get(i));

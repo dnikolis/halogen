@@ -132,7 +132,7 @@ public class SelectionModePopup extends PopupPanel {
     public void execute() {
       final MemberSelectionLabel targetLabel = (MemberSelectionLabel)getSource();
       String dimName = getDimensionName(targetLabel);
-      getOlap4JService().createSelection(dimName, targetLabel.getText(), new Integer(selectionMode), guid, new AsyncCallback() {
+      getOlap4JService().createSelection(dimName, targetLabel.getFullPath(), new Integer(selectionMode), guid, new AsyncCallback() {
         public void onFailure(Throwable caught) {
           Window.alert(messages.no_selection_set(caught.getLocalizedMessage()));
         }

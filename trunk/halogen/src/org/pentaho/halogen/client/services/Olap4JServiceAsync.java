@@ -34,6 +34,6 @@ public interface Olap4JServiceAsync {
   public void validateQuery(String guid, AsyncCallback callback);
   public void executeQuery(String guid, AsyncCallback callback);
   public void executeMDXStr(String mdx, String guid, AsyncCallback callback);
-  public void createSelection(String dimName, String memberName, Integer selectionType, String guid, AsyncCallback callback);
+  public void createSelection(String dimName, String[] memberName, Integer selectionType, String guid, AsyncCallback callback);
   public void swapAxis(String guid, AsyncCallback callback);
 }
