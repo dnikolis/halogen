@@ -250,7 +250,12 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
   
   public Boolean validateQuery(String guid) {
     Query query = queryCache.get(guid);
-    return new Boolean(query != null && query.validate());
+    try {
+        return new Boolean(query != null && query.validate());
+    } catch (OlapException e) {
+        e.printStackTrace();
+        return false;
+    }
   }
   
   public OlapData executeQuery(String guid) {
