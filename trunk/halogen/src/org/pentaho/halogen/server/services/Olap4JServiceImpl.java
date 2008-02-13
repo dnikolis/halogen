@@ -289,11 +289,11 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
     }
   }
   
-  public Boolean createSelection(String dimName, String[] memberName, Integer selectionType, String guid) {
+  public Boolean createSelection(String dimName, String[] memberNames, Integer selectionType, String guid) {
     Query query = queryCache.get(guid);
     Cube cube = cubeCache.get(guid);
     try {
-      Member member = cube.lookupMember(memberName);
+      Member member = cube.lookupMember(memberNames);
       QueryDimension qDim = getQueryDimension(query, dimName);
       Selection.Operator selectionMode = Selection.Operator.values()[selectionType.intValue()];
       Selection selection = qDim.createSelection(member, selectionMode);
@@ -303,6 +303,44 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
       return new Boolean(false);
     }
     return new Boolean(true);
+  }
+
+  /* (non-Javadoc)
+   * @see org.pentaho.halogen.client.services.Olap4JService#clearSelection(java.lang.String, java.lang.String[])
+   */
+  public Boolean clearSelection(String dimName, String[] memberNames, String guid) {
+    Query query = queryCache.get(guid);
+    QueryDimension qDim = getQueryDimension(query, dimName);
+    String path = normalizeMemberNames(memberNames);
+    Selection selection = findSelection(path, qDim);
+    if (selection == null) {
+      return new Boolean(false);
+    }
+    qDim.getSelections().remove(selection);
+    return new Boolean(true);
+  }
+
+  /**
+   * @param path
+   * @param dim
+   */
+  private Selection findSelection(String path, QueryDimension dim) {
+    path = "[" + dim.getName() + "]." + path; //$NON-NLS-1$ //$NON-NLS-2$
+    return findSelection(path, dim.getSelections());
+  }
+
+  /**
+   * @param path
+   * @param selections
+   * @return
+   */
+  private Selection findSelection(String path, List<Selection> selections) {
+    for (Selection selection : selections) {
+      if (selection.getName().equals(path)) {
+        return selection;
+      }
+    }
+    return null;
   }
 
   public OlapData swapAxis(String guid) {
@@ -477,6 +515,22 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
     }
     
     return depth;
+  }
+
+  /**
+   * @param memberNames  in the form memberNames[0] = "All Products", memberNames[1] = "Food", memberNames[2] = "Snacks"
+   * @return a String in the following format "[All Products].[Food].[Snacks]
+   */
+  private String normalizeMemberNames(String[] memberNames) {
+    StringBuffer buffer = new StringBuffer();
+    for (String name : memberNames) {
+      buffer.append("[").append(name).append("]."); //$NON-NLS-1$ //$NON-NLS-2$
+    }
+    if (buffer.length() > 0) {
+      buffer.deleteCharAt(buffer.length()-1); // Remove the last "."
+    }
+    
+    return buffer.toString();
   }
 }
 

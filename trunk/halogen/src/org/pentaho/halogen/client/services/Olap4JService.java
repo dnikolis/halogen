@@ -38,6 +38,7 @@ public interface Olap4JService extends RemoteService {
   public Boolean validateQuery(String guid);
   public OlapData executeQuery(String guid);
   public OlapData executeMDXStr(String mdx, String guid);
-  public Boolean createSelection(String dimName, String[] memberName, Integer selectionType, String guid);
+  public Boolean createSelection(String dimName, String[] memberNames, Integer selectionType, String guid);
+  public Boolean clearSelection(String dimName, String[] memberNames, String guid);
   public OlapData swapAxis(String guid);
 }

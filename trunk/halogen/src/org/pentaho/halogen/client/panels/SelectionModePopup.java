@@ -42,6 +42,7 @@ public class SelectionModePopup extends PopupPanel {
   public static final int CHILDREN = 1;
   public static final int INCLUDE_CHILDREN = 2;
   public static final int SIBLINGS = 3;
+  public static final int CLEAR = -1;
 
   Olap4JServiceAsync olap4JService;
   String guid;
@@ -72,6 +73,7 @@ public class SelectionModePopup extends PopupPanel {
     menuBar.addItem(new MenuItem(messages.children(), new SelectionModeCommand(CHILDREN)));
     menuBar.addItem(new MenuItem(messages.include_children(), new SelectionModeCommand(INCLUDE_CHILDREN)));
     menuBar.addItem(new MenuItem(messages.siblings(), new SelectionModeCommand(SIBLINGS)));
+    menuBar.addItem(new MenuItem(messages.clear_selections(), new SelectionModeClearCommand()));
     
     this.setWidget(menuBar);
   }
@@ -137,10 +139,39 @@ public class SelectionModePopup extends PopupPanel {
           Window.alert(messages.no_selection_set(caught.getLocalizedMessage()));
         }
         public void onSuccess(Object result) {
-          targetLabel.setSelectionMode(selectionMode);
+          if (((Boolean)result).booleanValue()) {
+            targetLabel.setSelectionMode(selectionMode);
+          }
         }         
       });
       SelectionModePopup.this.hide();
     }
   }
+  
+    /**
+     * @author wseyler
+     *
+     */
+  public class SelectionModeClearCommand implements Command {
+  
+    /* (non-Javadoc)
+     * @see com.google.gwt.user.client.Command#execute()
+     */
+    public void execute() {
+      final MemberSelectionLabel targetLabel = (MemberSelectionLabel)getSource();
+      String dimName = getDimensionName(targetLabel);
+      getOlap4JService().clearSelection(dimName, targetLabel.getFullPath(), guid, new AsyncCallback() {
+        public void onFailure(Throwable caught) {
+          Window.alert(messages.no_selection_cleared(caught.getLocalizedMessage()));
+        }
+        public void onSuccess(Object result) {
+          if (((Boolean)result).booleanValue()) {
+            targetLabel.setSelectionMode(CLEAR);
+          }
+        }   
+      });
+      SelectionModePopup.this.hide();
+    }
+  }
+  
 }
