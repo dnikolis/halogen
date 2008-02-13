@@ -64,12 +64,28 @@ public interface Messages extends com.google.gwt.i18n.client.Messages {
   String member();
 
   /**
+   * Translated "Selection could not be cleared: {0}".
+   * 
+   * @return translated "Selection could not be cleared: {0}"
+   * @gwt.key no_selection_cleared
+   */
+  String no_selection_cleared(String arg0);
+
+  /**
    * Translated "Selections".
    * 
    * @return translated "Selections"
    * @gwt.key selections
    */
   String selections();
+
+  /**
+   * Translated "Clear".
+   * 
+   * @return translated "Clear"
+   * @gwt.key clear_selections
+   */
+  String clear_selections();
 
   /**
    * Translated "Execute Query Model".
