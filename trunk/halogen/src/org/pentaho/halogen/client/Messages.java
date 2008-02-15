@@ -48,6 +48,14 @@ public interface Messages extends com.google.gwt.i18n.client.Messages {
   String execute_mdx();
 
   /**
+   * Translated "No Data Available.  Query may be invalid.".
+   * 
+   * @return translated "No Data Available.  Query may be invalid."
+   * @gwt.key no_data
+   */
+  String no_data();
+
+  /**
    * Translated "Unable to get data from server: {0}".
    * 
    * @return translated "Unable to get data from server: {0}"
@@ -208,9 +216,9 @@ public interface Messages extends com.google.gwt.i18n.client.Messages {
   String null_value();
 
   /**
-   * Translated "Toggle Show Parents".
+   * Translated "Show Parents".
    * 
-   * @return translated "Toggle Show Parents"
+   * @return translated "Show Parents"
    * @gwt.key toggle_parents
    */
   String toggle_parents();

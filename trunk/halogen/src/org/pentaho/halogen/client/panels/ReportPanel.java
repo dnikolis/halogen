@@ -25,6 +25,7 @@ import org.pentaho.halogen.client.widgets.OlapTable;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.TextArea;
@@ -44,7 +45,7 @@ public class ReportPanel extends FlexTable {
   Button executeMDXBtn;
   Button executeQueryBtn;
   Button swapAxisBtn;
-  Button toggleParentMembers;
+  CheckBox toggleParentMembers;
   OlapTable olapTable;
   
   public ReportPanel(Olap4JServiceAsync olap4JService, String guid, Messages messages) {
@@ -75,7 +76,7 @@ public class ReportPanel extends FlexTable {
                     "{[Product].CurrentMember.Children} ON ROWS " + //$NON-NLS-1$
                     "FROM [Sales]" ); //$NON-NLS-1$
     this.setWidget(0, 1, mdxText);
-    olapTable = new OlapTable();
+    olapTable = new OlapTable(messages);
     getFlexCellFormatter().setColSpan(1, 0, 4);
     this.setWidget(1, 0, olapTable);
     executeMDXBtn = new Button(messages.execute_mdx(), new ClickListener(){
@@ -135,13 +136,15 @@ public class ReportPanel extends FlexTable {
     });
     this.setWidget(2, 2, swapAxisBtn);
     
-    toggleParentMembers = new Button(messages.toggle_parents(), new ClickListener() {
+    toggleParentMembers = new CheckBox(messages.toggle_parents());
+    toggleParentMembers.setChecked(olapTable.isShowParentMembers());
+    toggleParentMembers.addClickListener(new ClickListener() {
 
-			public void onClick(Widget sender) {
-				olapTable.setShowParentMembers(!olapTable.isShowParentMembers());
-				olapTable.refresh();
-			}
-    	
+      public void onClick(Widget sender) {
+        boolean checked = ((CheckBox)sender).isChecked();
+        olapTable.setShowParentMembers(checked);
+      }
+      
     });
     this.setWidget(2, 3, toggleParentMembers);
   }

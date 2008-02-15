@@ -58,11 +58,12 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
  * @author wseyler
  *
  */
+@SuppressWarnings("serial")
 public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JService {
   protected static final Double ZERO_THRESHOLD = 1.2346E-8;
   protected static HashMap<String, OlapConnection> connectionCache = new HashMap<String, OlapConnection>();
-  protected static HashMap<String, Cube> cubeCache = new HashMap<String, Cube>();
-  protected static HashMap<String, Query> queryCache = new HashMap<String, Query>();
+  protected static HashMap<OlapConnection, Cube> cubeCache = new HashMap<OlapConnection, Cube>();
+  protected static HashMap<Cube, Query> queryCache = new HashMap<Cube, Query>();
   
   /* (non-Javadoc)
    * @see org.pentaho.halogen.client.services.Olap4JService#getServerInfo()
@@ -80,8 +81,6 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
       OlapConnection olapConnection = wrapper.unwrap(OlapConnection.class);
       if (olapConnection != null) {
         connectionCache.put(guid, olapConnection);
-        cubeCache.clear();
-        queryCache.clear();
         return true;
       } else {
         return false;
@@ -134,8 +133,7 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
         }
       }
       if (cube != null) {
-        cubeCache.put(guid, cube);
-        queryCache.clear();
+        cubeCache.put(connection, cube);
         return new Boolean(true);
       }
       return new Boolean(false);
@@ -146,15 +144,21 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
   }
   
   public String[] getDimensions(String axis, String guid) {
-    Query query = queryCache.get(guid);
+    
+    Cube cube;
+    try {
+      cube = getCube4Guid(guid);
+    } catch (ObjectNotInCacheException e1) {
+      // TODO Auto-generated catch block
+      e1.printStackTrace();
+      return new String[0];
+    }
+
+    Query query = queryCache.get(cube);
     if (query == null) {
-      Cube cube = cubeCache.get(guid);
-      if (cube == null) {
-        return new String[0];
-      }
       try {
         query = new Query(guid, cube);
-        queryCache.put(guid, query);
+        queryCache.put(cube, query);
       } catch (SQLException e) {
         e.printStackTrace();
         return new String[0];
@@ -175,15 +179,20 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
   }
   
   public Boolean moveDimension(String axisName, String DimName, String guid) {
-    Query query = queryCache.get(guid);
+    Cube cube;
+    try {
+      cube = getCube4Guid(guid);
+    } catch (ObjectNotInCacheException e1) {
+      // TODO Auto-generated catch block
+      e1.printStackTrace();
+      return new Boolean(false);
+    }
+    
+    Query query = queryCache.get(cube);
     if (query == null) {
-      Cube cube = cubeCache.get(guid);
-      if (cube == null) {
-        return new Boolean(false);
-      }
       try {
-        query = new Query(this.getThreadLocalRequest().getSession().toString(), cube);
-        queryCache.put(guid, query);
+        query = new Query(guid, cube);
+        queryCache.put(cube, query);
       } catch (SQLException e) {
         e.printStackTrace();
         return new Boolean(false);
@@ -200,7 +209,14 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
   }
 
   public StringTree getMembers(String dimName, String guid) {
-    Query query = queryCache.get(guid);
+
+    Query query = null;
+    try {
+      query = getQuery4Guid(guid);
+    } catch (ObjectNotInCacheException e1) {
+      // TODO Auto-generated catch block
+      e1.printStackTrace();
+    }
     
     List<String> uniqueNameList = new ArrayList<String>();
     NamedList<Level> levels = query.getDimension(dimName).getDimension().getHierarchies().get(dimName).getLevels();
@@ -249,31 +265,27 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
   }
   
   public Boolean validateQuery(String guid) {
-    Query query = queryCache.get(guid);
     try {
-        return new Boolean(query != null && query.validate());
+      return new Boolean(getQuery4Guid(guid).validate());
     } catch (OlapException e) {
-        e.printStackTrace();
-        return false;
+      e.printStackTrace();
+      return new Boolean(false);
+    } catch (ObjectNotInCacheException e) {
+      e.printStackTrace();
+      return new Boolean(false);
     }
   }
   
   public OlapData executeQuery(String guid) {
-    Query query = queryCache.get(guid);
-    if (query == null) {
-      return new OlapData();
-    }
-    
+    CellSet results = null;
     try {
-      CellSet results = query.execute();
-      return cellSet2OlapData(results);  
+      results = getQuery4Guid(guid).execute();
     } catch (OlapException e) {
       e.printStackTrace();
-      return null;
-    } catch (Exception e) {
+    } catch (ObjectNotInCacheException e) {
       e.printStackTrace();
-      return null;
     }
+    return cellSet2OlapData(results);
   }
   
   public OlapData executeMDXStr(String mdx, String guid) {
@@ -289,9 +301,19 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
     }
   }
   
-  public Boolean createSelection(String dimName, String[] memberNames, Integer selectionType, String guid) {
-    Query query = queryCache.get(guid);
-    Cube cube = cubeCache.get(guid);
+  public Boolean createSelection(String dimName, String[] memberNames, Integer selectionType, String guid) {    
+    Cube cube = null;
+    try {
+      cube = getCube4Guid(guid);
+    } catch (ObjectNotInCacheException e1) {
+      e1.printStackTrace();
+      return new Boolean(false);
+    }
+    
+    Query query = queryCache.get(cube);
+    if (query == null) {
+      return new Boolean(false);
+    }
     try {
       Member member = cube.lookupMember(memberNames);
       QueryDimension qDim = getQueryDimension(query, dimName);
@@ -309,7 +331,14 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
    * @see org.pentaho.halogen.client.services.Olap4JService#clearSelection(java.lang.String, java.lang.String[])
    */
   public Boolean clearSelection(String dimName, String[] memberNames, String guid) {
-    Query query = queryCache.get(guid);
+    Query query = null;
+    try {
+      query = getQuery4Guid(guid);
+    } catch (ObjectNotInCacheException e) {
+      e.printStackTrace();
+      return new Boolean(false);
+    }
+
     QueryDimension qDim = getQueryDimension(query, dimName);
     String path = normalizeMemberNames(memberNames);
     Selection selection = findSelection(path, qDim);
@@ -344,7 +373,13 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
   }
 
   public OlapData swapAxis(String guid) {
-    Query query = queryCache.get(guid);
+    Query query = null;
+    try {
+      query = getQuery4Guid(guid);
+    } catch (ObjectNotInCacheException e) {
+      e.getLocalizedMessage();  // We don't need a stack trace here since query.swapAxes() will blow
+    }
+    
     query.swapAxes();
     
     return executeQuery(guid);
@@ -375,6 +410,9 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
   }
   
   private OlapData cellSet2OlapData(CellSet cellSet) {
+    if (cellSet == null) {
+      return null;
+    }
     CellSetAxis rowCells = cellSet.getAxes().get(Axis.ROWS.axisOrdinal());
     CellSetAxis colCells = cellSet.getAxes().get(Axis.COLUMNS.axisOrdinal());
     
@@ -531,6 +569,36 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
     }
     
     return buffer.toString();
+  }
+  
+  private Cube getCube4Guid(String guid) throws ObjectNotInCacheException {
+    OlapConnection connection = connectionCache.get(guid);
+    if (connection == null) {
+      throw new ObjectNotInCacheException(Messages.getString("Olap4JServiceImpl.OBJECT_NOT_IN_CACHE") + OlapConnection.class.toString() + Messages.getString("Olap4JServiceImpl.NO_KEY_FOUND") + guid); //$NON-NLS-1$ //$NON-NLS-2$
+    }
+    
+    Cube cube = cubeCache.get(connection);
+    if (cube == null) {
+      throw new ObjectNotInCacheException(Messages.getString("Olap4JServiceImpl.OBJECT_NOT_IN_CACHE") + Cube.class.toString() + Messages.getString("Olap4JServiceImpl.NO_KEY_FOUND") + connection.toString()); //$NON-NLS-1$ //$NON-NLS-2$
+    }
+    
+    return cube;
+  }
+  
+  private Query getQuery4Guid(String guid) throws ObjectNotInCacheException {
+    Cube cube;
+    try {
+      cube = getCube4Guid(guid);
+    } catch (ObjectNotInCacheException e) {
+      throw e;
+    }
+    
+    Query query = queryCache.get(cube);
+    if (query == null) {
+      throw new ObjectNotInCacheException(Messages.getString("Olap4JServiceImpl.OBJECT_NOT_IN_CACHE") + Query.class.toString() + Messages.getString("Olap4JServiceImpl.NO_KEY_FOUND") + cube.toString()); //$NON-NLS-1$ //$NON-NLS-2$
+    }
+    
+    return query;
   }
 }
 

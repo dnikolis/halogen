@@ -17,10 +17,12 @@
 
 package org.pentaho.halogen.client.widgets;
 
+import org.pentaho.halogen.client.Messages;
 import org.pentaho.halogen.client.util.CellInfo;
 import org.pentaho.halogen.client.util.OlapData;
 
 import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.Label;
 
@@ -31,14 +33,21 @@ import com.google.gwt.user.client.ui.Label;
 public class OlapTable extends FlexTable {
   OlapData olapData = null;
   boolean showParentMembers = true;
+  Messages messages = null;
   
-  public OlapTable() {
+  /**
+   * @param messages
+   */
+  public OlapTable(Messages messages) {
     super();
+    this.messages = messages;
+    
     addStyleName("olap-table"); //$NON-NLS-1$
   }
+
   
-  public OlapTable(boolean showParentMembers) {
-    this();
+  public OlapTable(Messages messages, boolean showParentMembers) {
+    this(messages);
     this.showParentMembers = showParentMembers;
   }
 
@@ -52,41 +61,15 @@ public class OlapTable extends FlexTable {
       refresh();
     }
   }
-
-//  protected void refresh() {
-//    while (this.getRowCount() > 0) {
-//      this.removeRow(0);
-//    }
-//    for (int r=0; r<olapData.length; r++) {
-//      for (int c=0; c<olapData[r].length; c++) {
-//        if (olapData[r][c] != null) {
-//          CellInfo cellInfo = olapData[r][c];
-//          CellFormatter cellFormatter = getCellFormatter();
-//          Label label = new Label(cellInfo.getFormattedValue());
-//          if (cellInfo.isColumnHeader()) {
-//            label.addStyleName("olap-col-header-label"); //$NON-NLS-1$
-//            cellFormatter.addStyleName(r, c, "olap-col-header-cell"); //$NON-NLS-1$
-//           } else if (cellInfo.isRowHeader()) {
-//            label.addStyleName("olap-row-header-label"); //$NON-NLS-1$
-//            cellFormatter.addStyleName(r, c, "olap-row-header-cell"); //$NON-NLS-1$
-//          } else {
-//            label.addStyleName("olap-cell-label"); //$NON-NLS-1$
-//            String colorValueStr = cellInfo.getColorValue();
-//            if (colorValueStr != null) {
-//              DOM.setElementAttribute(label.getElement(), "style", "background-color: "+cellInfo.getColorValue()+";");   //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-//            } else {
-//              
-//            }
-//          }
-//          setWidget(r, c, label);
-//        }
-//      }
-//    }    
-//  }
   
   public void refresh() {
     while (this.getRowCount() > 0) {
       this.removeRow(0);
+    }
+    
+    if (olapData == null) {
+      Window.alert(messages.no_data());
+      return;
     }
     CellFormatter cellFormatter = getCellFormatter();
     
@@ -152,8 +135,14 @@ public class OlapTable extends FlexTable {
     return showParentMembers;
   }
 
-  public void setShowParentMembers(boolean showParentMembers) {
+  public void setShowParentMembers(boolean showParentMembers, boolean refresh) {
     this.showParentMembers = showParentMembers;
+    if (refresh) {
+      refresh();
+    }
   }
   
+  public void setShowParentMembers(boolean showParentMembers) {
+    setShowParentMembers(showParentMembers, true);
+  }
 }
