@@ -32,7 +32,7 @@ public class ColumnHeaders implements IOlapDataStructure, IsSerializable {
   
   public ColumnHeaders(CellInfo[][] columnHeaderMembers) {
     this();
-    this.columnHeaderMembers = columnHeaderMembers;
+    setColumnHeaderMembers(columnHeaderMembers);
   }
 
   public CellInfo[][] getColumnHeaderMembers() {
@@ -41,6 +41,7 @@ public class ColumnHeaders implements IOlapDataStructure, IsSerializable {
 
   public void setColumnHeaderMembers(CellInfo[][] columnHeaderMembers) {
     this.columnHeaderMembers = columnHeaderMembers;
+    normalize();
   }
   
   public int getAcrossCount() {
@@ -62,6 +63,22 @@ public class ColumnHeaders implements IOlapDataStructure, IsSerializable {
    */
   public CellInfo getCell(int row, int column) {
     return columnHeaderMembers == null ? null : columnHeaderMembers[row][column];
+  }
+
+  /**
+   * 
+   */
+  public void normalize() {
+    if (columnHeaderMembers != null) {
+      for (int r=0; r<getDownCount(); r++) {
+        for (int c=0; c<getAcrossCount(); c++) {
+          CellInfo cell = getCell(r, c);
+          if (cell == null && r > 0) {
+            columnHeaderMembers[r][c] = getCell(r-1, c);
+          }
+        }
+      }
+    }
   }
   
 }
