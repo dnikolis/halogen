@@ -71,9 +71,15 @@ public class OlapTable extends FlexTable {
       Window.alert(messages.no_data());
       return;
     }
+    
+    createColumnHeaders();
+    createRowHeaders();
+    populateData();
+  }
+
+  protected void createColumnHeaders() {
     CellFormatter cellFormatter = getCellFormatter();
     
-    // First process the column headers
     CellInfo[][] headerData;
     if (showParentMembers) {
     	headerData = olapData.getColumnHeaders().getColumnHeaderMembers();
@@ -91,9 +97,13 @@ public class OlapTable extends FlexTable {
     			setWidget(row, showParentMembers ? column + olapData.getRowHeaders().getAcrossCount() : column + 1, label);
     		}
     	}
-    }
-    
-    // Now we handle the row headers
+    }  	
+  }
+  
+  protected void createRowHeaders() {
+  	CellFormatter cellFormatter = getCellFormatter();
+  	
+  	CellInfo[][] headerData;
     if (showParentMembers) {
     	headerData = olapData.getRowHeaders().getRowHeaderMembers();
     } else {
@@ -112,9 +122,10 @@ public class OlapTable extends FlexTable {
 	        setWidget(showParentMembers ? row + olapData.getColumnHeaders().getDownCount() : row + 1, column, label);
     		}
     	}
-    }
-    
-    // Now we handle the cell data
+    }  	
+  }
+  
+  protected void populateData() {
     for (int row=0; row<olapData.getCellData().getDownCount(); row++) {
     	for (int column=0; column<olapData.getCellData().getAcrossCount(); column++) {
     		CellInfo cellInfo = olapData.getCellData().getCell(row, column);
@@ -128,9 +139,9 @@ public class OlapTable extends FlexTable {
 	        setWidget(showParentMembers ? row + olapData.getColumnHeaders().getDownCount() : row + 1, showParentMembers ? column + olapData.getRowHeaders().getAcrossCount() : column + 1, label);
     		}
     	}
-    }
+    }  	
   }
-
+  
   public boolean isShowParentMembers() {
     return showParentMembers;
   }
