@@ -36,6 +36,9 @@ public class CellInfo implements IsSerializable {
   public void setFormattedValue(String formattedValue) {
     this.formattedValue = formattedValue;
   }
+  public boolean isHeader() {
+  	return isRowHeader() || isColumnHeader();
+  }
   public boolean isColumnHeader() {
     return isColumnHeader;
   }
