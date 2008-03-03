@@ -1,5 +1,5 @@
 = Halogen Backlog =
-The following is a list of backlog items for the Halogen project.  If you might be interested in contributing any of these items please contact wseyler@pentaho.org
+The following is a list of backlog items for the Halogen project.  If you might be interested in contributing any of these items please contact wseyler@pentaho.org or leave a comment on this page.
 
 
 = Current Backlog =
