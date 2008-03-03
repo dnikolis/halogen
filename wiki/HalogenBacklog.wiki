@@ -1,0 +1,12 @@
+= Halogen Backlog =
+The following is a list of backlog items for the Halogen project.  If you might be interested in contributing any of these items please contact wseyler@pentaho.org
+
+
+= Current Backlog =
+
+  # Implement drag and drop for dimension selections on the "Selection Tab"
+  # Implement right click member selections (currently left click) on the "Selection Tab"
+  # Implement drag and drop dimension move and axis swapping on the "Report Tab"
+  # Integrate JFreeChart chart and display appropriately on the "Report Tab"
+  # Create a floating palette of options for the "Report Tab" (show/hide parents, show/hide grid, show/hide chart, show/hide MDX editor... etc).
+  
