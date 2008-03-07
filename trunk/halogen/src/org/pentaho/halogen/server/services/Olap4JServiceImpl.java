@@ -17,6 +17,8 @@
 
 package org.pentaho.halogen.server.services;
 
+import java.io.File;
+import java.io.IOException;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.text.DateFormat;
@@ -28,6 +30,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.servlet.http.HttpServletRequest;
+
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartUtilities;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.category.CategoryDataset;
+import org.jfree.data.category.DefaultCategoryDataset;
 import org.olap4j.Axis;
 import org.olap4j.Cell;
 import org.olap4j.CellSet;
@@ -60,11 +70,22 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
  */
 @SuppressWarnings("serial")
 public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JService {
+
   protected static final Double ZERO_THRESHOLD = 1.2346E-8;
+  protected static String chartDirectory;
   protected static HashMap<String, OlapConnection> connectionCache = new HashMap<String, OlapConnection>();
   protected static HashMap<OlapConnection, Cube> cubeCache = new HashMap<OlapConnection, Cube>();
   protected static HashMap<Cube, Query> queryCache = new HashMap<Cube, Query>();
-  
+
+  public Olap4JServiceImpl() {
+    super();
+    chartDirectory = System.getProperty("user.dir") + File.separator + "www" + File.separator + "org.pentaho.halogen.Halogen" + File.separator + "charts";
+    File chartDirectoryFile = new File(chartDirectory);
+    if (!chartDirectoryFile.exists()) {
+      chartDirectoryFile.mkdirs();
+    }
+  }
+
   /* (non-Javadoc)
    * @see org.pentaho.halogen.client.services.Olap4JService#getServerInfo()
    */
@@ -463,6 +484,7 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
       for (int c=0; c<colPositions.size(); c++) {
         Cell cell = cellSet.getCell(colPositions.get(c), rowPositions.get(r));
         CellInfo cellInfo = new CellInfo();
+        cellInfo.setRawValue(cell.getFormattedValue());
         String cellValue = cell.getFormattedValue();  // First try to get a formatted value
         if (cellValue.length()<1) {
           Number value = (Number) cell.getValue();
@@ -480,7 +502,6 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
     CellData cellData = new CellData(cellGrid);
     
     OlapData olapData = new OlapData(rowHeaders, columnHeaders, cellData);
-    
     return olapData;
   }
 
@@ -599,6 +620,53 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
     }
     
     return query;
+  }
+
+  /* (non-Javadoc)
+   * @see org.pentaho.halogen.client.services.Olap4JService#createChart(org.pentaho.halogen.client.util.OlapData)
+   */
+  public String createChart(OlapData olapData) {
+    CategoryDataset categoryDataset = createCategoryDataset(olapData);
+    String categoryAxisName = olapData.getRowHeaders().getCell(0, 0).getFormattedValue();
+    String valueAxisName = olapData.getColumnHeaders().getCell(0, 0).getFormattedValue();
+    JFreeChart chart = ChartFactory.createBarChart("Olap Chart", categoryAxisName, valueAxisName, categoryDataset, PlotOrientation.VERTICAL, true, true, false);
+    File chartFile = null;
+    try {
+      chartFile = File.createTempFile("chart",".png", new File(chartDirectory));
+      ChartUtilities.saveChartAsPNG(chartFile, chart, 800, 800);
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    HttpServletRequest req = getThreadLocalRequest();
+    StringBuffer buffer = new StringBuffer(req.getScheme()).append("://").append(req.getServerName()).append(":").append(req.getServerPort()).append("/org.pentaho.halogen.Halogen").append("/charts/").append(chartFile.getName());
+    System.out.println(buffer.toString());
+    return buffer.toString();
+  }
+
+  /**
+   * @param olapData
+   * @return
+   */
+  private CategoryDataset createCategoryDataset(OlapData olapData) {
+    DefaultCategoryDataset categoryDataset = new DefaultCategoryDataset();
+    
+    for (int row = 0; row < olapData.getCellData().getDownCount(); row++ ) {
+      for (int column = 0; column < olapData.getCellData().getAcrossCount(); column++ ) {
+        if (olapData.getCellData().getCell(row, column).getFormattedValue() != null && !olapData.getCellData().getCell(row, column).getFormattedValue().equalsIgnoreCase("null") ) {
+          try {
+            Double value = new Double(olapData.getCellData().getCell(row, column).getFormattedValue());
+            String rowName = olapData.getRowHeaders().getCell(row, olapData.getRowHeaders().getAcrossCount()-1).getFormattedValue();
+            String columnName = olapData.getColumnHeaders().getCell(olapData.getColumnHeaders().getDownCount()-1, column).getFormattedValue();
+            categoryDataset.addValue(value, rowName, columnName);
+          } catch (NumberFormatException ex) {
+            // Do Nothing
+          }
+        }
+      }
+    }
+    
+    return categoryDataset;
   }
 }
 
