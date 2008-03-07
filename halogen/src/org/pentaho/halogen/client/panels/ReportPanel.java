@@ -28,6 +28,7 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -47,6 +48,7 @@ public class ReportPanel extends FlexTable {
   Button swapAxisBtn;
   CheckBox toggleParentMembers;
   OlapTable olapTable;
+  Image chart;
   
   public ReportPanel(Olap4JServiceAsync olap4JService, String guid, Messages messages) {
     super();
@@ -79,6 +81,9 @@ public class ReportPanel extends FlexTable {
     olapTable = new OlapTable(messages);
     getFlexCellFormatter().setColSpan(1, 0, 4);
     this.setWidget(1, 0, olapTable);
+    chart = new Image();
+    getFlexCellFormatter().setColSpan(2, 0, 4);
+    this.setWidget(2, 0, chart);
     executeMDXBtn = new Button(messages.execute_mdx(), new ClickListener(){
 
       public void onClick(Widget sender) {
@@ -86,6 +91,17 @@ public class ReportPanel extends FlexTable {
 
           public void onSuccess(Object result) {
             olapTable.setData((OlapData)result);
+            olap4JService.createChart((OlapData)result, new AsyncCallback() {
+
+              public void onFailure(Throwable caught) {
+                Window.alert(messages.no_server_data(caught.toString()));
+              }
+
+              public void onSuccess(Object result) {
+                chart.setUrl(result.toString());
+              }
+              
+            });
           }
           
           public void onFailure(Throwable caught) {
@@ -96,7 +112,7 @@ public class ReportPanel extends FlexTable {
       }
       
     });
-    this.setWidget(2, 0, executeMDXBtn);
+    this.setWidget(3, 0, executeMDXBtn);
     executeQueryBtn = new Button(messages.execute_query(), new ClickListener() {
 
       public void onClick(Widget sender) {
@@ -104,6 +120,17 @@ public class ReportPanel extends FlexTable {
 
           public void onSuccess(Object result) {
             olapTable.setData((OlapData)result);
+            olap4JService.createChart((OlapData)result, new AsyncCallback() {
+
+              public void onFailure(Throwable caught) {
+                Window.alert(messages.no_server_data(caught.toString()));
+              }
+
+              public void onSuccess(Object result) {
+                chart.setUrl(result.toString());
+              }
+              
+            });
           }
           
           public void onFailure(Throwable caught) {
@@ -115,7 +142,7 @@ public class ReportPanel extends FlexTable {
       }
       
     });
-    this.setWidget(2, 1, executeQueryBtn);
+    this.setWidget(3, 1, executeQueryBtn);
     
     swapAxisBtn = new Button(messages.swap_axis(), new ClickListener() {
 
@@ -128,13 +155,24 @@ public class ReportPanel extends FlexTable {
 
           public void onSuccess(Object result) {
             olapTable.setData((OlapData) result);
+            olap4JService.createChart((OlapData)result, new AsyncCallback() {
+
+              public void onFailure(Throwable caught) {
+                Window.alert(messages.no_server_data(caught.toString()));
+              }
+
+              public void onSuccess(Object result) {
+                chart.setUrl(result.toString());
+              }
+              
+            });
           }
           
         });
       }
       
     });
-    this.setWidget(2, 2, swapAxisBtn);
+    this.setWidget(3, 2, swapAxisBtn);
     
     toggleParentMembers = new CheckBox(messages.toggle_parents());
     toggleParentMembers.setChecked(olapTable.isShowParentMembers());
@@ -146,6 +184,6 @@ public class ReportPanel extends FlexTable {
       }
       
     });
-    this.setWidget(2, 3, toggleParentMembers);
+    this.setWidget(3, 3, toggleParentMembers);
   }
 }

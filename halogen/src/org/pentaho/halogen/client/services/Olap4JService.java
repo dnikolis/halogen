@@ -41,4 +41,5 @@ public interface Olap4JService extends RemoteService {
   public Boolean createSelection(String dimName, String[] memberNames, Integer selectionType, String guid);
   public Boolean clearSelection(String dimName, String[] memberNames, String guid);
   public OlapData swapAxis(String guid);
+  public String createChart(OlapData olapData);
 }

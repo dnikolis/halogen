@@ -21,5 +21,7 @@
 	<classpathentry kind="lib" path="lib/third-party/mondrian.jar" sourcepath="/Developer/Java/olap4j-0.9.3/olap4j-0.9.3-src.zip"/>
 	<classpathentry kind="lib" path="lib/third-party/olap4j.jar" sourcepath="/Developer/Java/olap4j-0.9.3/olap4j-0.9.3/src"/>
 	<classpathentry kind="lib" path="lib/third-party/mysql-connector-java-5.0.7-bin.jar"/>
+	<classpathentry kind="lib" path="lib/third-party/jfreechart-1.0.9.jar" sourcepath="/Users/wseyler/Documents/lib-src/jfreechart-1.0.9/source"/>
+	<classpathentry kind="lib" path="lib/third-party/jcommon-1.0.12.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

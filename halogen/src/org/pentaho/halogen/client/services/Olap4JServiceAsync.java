@@ -17,6 +17,8 @@
 
 package org.pentaho.halogen.client.services;
 
+import org.pentaho.halogen.client.util.OlapData;
+
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
@@ -37,4 +39,5 @@ public interface Olap4JServiceAsync {
   public void createSelection(String dimName, String[] memberNames, Integer selectionType, String guid, AsyncCallback callback);
   public void clearSelection(String dimName, String[] memberNames, String guid, AsyncCallback callback);
   public void swapAxis(String guid, AsyncCallback callback);
+  public void createChart(OlapData olapData, AsyncCallback callback);
 }

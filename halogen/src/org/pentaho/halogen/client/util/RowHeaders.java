@@ -41,7 +41,7 @@ public class RowHeaders implements IOlapDataStructure, IsSerializable {
 
   public void setRowHeaderMembers(CellInfo[][] rowHeaderMembers) {
     this.rowHeaderMembers = rowHeaderMembers;
-    normalize();
+    equalize();
   }
   
   public int getAcrossCount() {
@@ -68,7 +68,7 @@ public class RowHeaders implements IOlapDataStructure, IsSerializable {
   /* (non-Javadoc)
    * @see org.pentaho.halogen.client.util.IOlapDataStructure#normalize()
    */
-  public void normalize() {
+  public void equalize() {
     if (rowHeaderMembers != null) {
       for (int r=0; r<getDownCount(); r++) {
         for (int c=0; c<getAcrossCount(); c++) {
