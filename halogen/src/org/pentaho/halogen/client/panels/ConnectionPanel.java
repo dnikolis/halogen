@@ -25,7 +25,9 @@ import org.pentaho.halogen.client.services.Olap4JServiceAsync;
 
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.ChangeListener;
+import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.SourcesTabEvents;
 import com.google.gwt.user.client.ui.TabListener;
@@ -43,6 +45,8 @@ public class ConnectionPanel extends FlexTable implements TabListener, SourcesCo
   Messages messages;
   
   TextArea connectionText;
+  Button connectBtn;
+  
   static String queryTypeGroup = "QUERY_TYPE"; //$NON-NLS-1$
   boolean connectionEstablished = false;
   ConnectionListenerCollection connectionListeners;
@@ -65,24 +69,31 @@ public class ConnectionPanel extends FlexTable implements TabListener, SourcesCo
     connectionText.addChangeListener(new ChangeListener() {
       public void onChange(Widget sender) {
         setConnectionEstablished(false);
-        connect(connectionText.getText());
+        connectBtn.setEnabled(!isConnectionEstablished());
       }    
     });
     connectionText.setWidth("300px"); //$NON-NLS-1$
     connectionText.setHeight("100px"); //$NON-NLS-1$
     connectionText.setText("jdbc:mondrian:Jdbc=jdbc:mysql://localhost:3306/foodmart?user=foodmart&password=foodmart;"+ //$NON-NLS-1$
-                           "Catalog=/Users/wseyler/Downloads/mondrian-2.4.2.9831/demo/FoodMart.xml"); //$NON-NLS-1$
+                           "Catalog=/Users/wseyler/Documents/workspace-trunk/pentaho-solutions/samples/analysis/FoodMart.xml"); //$NON-NLS-1$
     this.setWidget(0, 1, connectionText);
-    connect(connectionText.getText());
+    connectBtn = new Button(messages.connect());
+    connectBtn.addClickListener(new ClickListener() {
+      public void onClick(Widget sender) {
+        if (connectBtn.getHTML().equals(messages.connect())) {
+          connect(connectionText.getText());
+        } else if (connectBtn.getHTML().equals(messages.disconnect())) {
+          disconnect();
+        }               
+      }     
+    });
+    this.setWidget(0, 2, connectBtn);
   }
 
   /* (non-Javadoc)
    * @see com.google.gwt.user.client.ui.TabListener#onBeforeTabSelected(com.google.gwt.user.client.ui.SourcesTabEvents, int)
    */
   public boolean onBeforeTabSelected(SourcesTabEvents sender, int tabIndex) {
-    if (!isConnectionEstablished()) {
-      connect(connectionText.getText());
-    }
     return isConnectionEstablished();
   }
 
@@ -114,11 +125,31 @@ public class ConnectionPanel extends FlexTable implements TabListener, SourcesCo
             setConnectionEstablished(false);
             connectionListeners.fireConnectionBroken(ConnectionPanel.this);
           }
+          connectBtn.setHTML(isConnectionEstablished() ? messages.disconnect() : messages.connect());
         }
         public void onFailure(Throwable caught) {
           Window.alert(messages.no_connection_param(caught.getLocalizedMessage()));
           setConnectionEstablished(false);
+          connectBtn.setHTML(isConnectionEstablished() ? messages.disconnect() : messages.connect());
         }      
+      });
+    }
+  }
+  
+  public void disconnect() {
+    if (isConnectionEstablished()) {
+      olap4JService.disconnect(guid, new AsyncCallback() {
+        public void onFailure(Throwable caught) {
+          Window.alert(messages.no_connection_param(caught.getLocalizedMessage()));
+          setConnectionEstablished(false);
+          connectionListeners.fireConnectionBroken(ConnectionPanel.this);
+          connectBtn.setHTML(isConnectionEstablished() ? messages.disconnect() : messages.connect());
+        }
+        public void onSuccess(Object result) {
+          setConnectionEstablished(false);
+          connectionListeners.fireConnectionBroken(ConnectionPanel.this);
+          connectBtn.setHTML(isConnectionEstablished() ? messages.disconnect() : messages.connect());
+        }       
       });
     }
   }
