@@ -115,6 +115,19 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
     }
   }
   
+  public Boolean disconnect(String guid) {
+    OlapConnection connection = connectionCache.get(guid);
+    if (connection != null) {
+      try {
+        connection.close();
+      } catch (SQLException e) {
+        e.printStackTrace();
+      }
+    }
+    queryCache.remove(cubeCache.remove(connectionCache.remove(guid)));
+    return true;
+  }
+  
   public String[] getCubes(String guid) {
     OlapConnection connection = connectionCache.get(guid);
     if (connection == null) {

@@ -104,6 +104,14 @@ public interface Messages extends com.google.gwt.i18n.client.Messages {
   String execute_query();
 
   /**
+   * Translated "Disconnect".
+   * 
+   * @return translated "Disconnect"
+   * @gwt.key disconnect
+   */
+  String disconnect();
+
+  /**
    * Translated "Move To Filter".
    * 
    * @return translated "Move To Filter"
@@ -144,20 +152,20 @@ public interface Messages extends com.google.gwt.i18n.client.Messages {
   String mdx_query();
 
   /**
-   * Translated "Filter Dimensions".
-   * 
-   * @return translated "Filter Dimensions"
-   * @gwt.key filter_dimensions
-   */
-  String filter_dimensions();
-
-  /**
    * Translated "Welcome.  The current time is {0}.".
    * 
    * @return translated "Welcome.  The current time is {0}."
    * @gwt.key welcome
    */
   String welcome(String arg0);
+
+  /**
+   * Translated "Filter Dimensions".
+   * 
+   * @return translated "Filter Dimensions"
+   * @gwt.key filter_dimensions
+   */
+  String filter_dimensions();
 
   /**
    * Translated "Connection".
@@ -184,20 +192,20 @@ public interface Messages extends com.google.gwt.i18n.client.Messages {
   String report();
 
   /**
-   * Translated "Dimensions".
-   * 
-   * @return translated "Dimensions"
-   * @gwt.key dimensions
-   */
-  String dimensions();
-
-  /**
    * Translated "Siblings".
    * 
    * @return translated "Siblings"
    * @gwt.key siblings
    */
   String siblings();
+
+  /**
+   * Translated "Dimensions".
+   * 
+   * @return translated "Dimensions"
+   * @gwt.key dimensions
+   */
+  String dimensions();
 
   /**
    * Translated "Include Children".
