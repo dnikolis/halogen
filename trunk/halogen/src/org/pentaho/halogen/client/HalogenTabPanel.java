@@ -48,8 +48,10 @@ public class HalogenTabPanel extends TabPanel {
   private void init() {
     DimensionPanel dimensionPanel = new DimensionPanel(olap4JService, guid, messages);
     ConnectionPanel connectionPanel = new ConnectionPanel(olap4JService, guid, messages);
-    connectionPanel.addConnectionListener(dimensionPanel);
     ReportPanel reportPanel = new ReportPanel(olap4JService, guid, messages);
+
+    connectionPanel.addConnectionListener(dimensionPanel);
+    connectionPanel.addConnectionListener(reportPanel);
     
     this.add(connectionPanel, messages.connection());
     this.add(dimensionPanel, messages.selections());

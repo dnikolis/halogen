@@ -74,14 +74,11 @@ public class OlapTable extends FlexTable {
       this.removeRow(0);
     }
     
-    if (olapData == null) {
-      Window.alert(messages.no_data());
-      return;
+    if (olapData != null) {
+      createColumnHeaders();
+      createRowHeaders();
+      populateData();
     }
-    
-    createColumnHeaders();
-    createRowHeaders();
-    populateData();
     
   }
 

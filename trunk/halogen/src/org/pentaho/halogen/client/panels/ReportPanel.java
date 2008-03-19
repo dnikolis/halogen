@@ -18,6 +18,7 @@
 package org.pentaho.halogen.client.panels;
 
 import org.pentaho.halogen.client.Messages;
+import org.pentaho.halogen.client.listeners.ConnectionListener;
 import org.pentaho.halogen.client.services.Olap4JServiceAsync;
 import org.pentaho.halogen.client.util.OlapData;
 import org.pentaho.halogen.client.widgets.OlapTable;
@@ -36,7 +37,7 @@ import com.google.gwt.user.client.ui.Widget;
  * @author wseyler
  *
  */
-public class ReportPanel extends FlexTable {
+public class ReportPanel extends FlexTable implements ConnectionListener {
 
   Olap4JServiceAsync olap4JService;
   String guid;
@@ -185,5 +186,19 @@ public class ReportPanel extends FlexTable {
       
     });
     this.setWidget(3, 3, toggleParentMembers);
+  }
+
+  /* (non-Javadoc)
+   * @see org.pentaho.halogen.client.listeners.ConnectionListener#onConnectionBroken(com.google.gwt.user.client.ui.Widget)
+   */
+  public void onConnectionBroken(Widget sender) {
+    olapTable.setData(null, true);
+  }
+
+  /* (non-Javadoc)
+   * @see org.pentaho.halogen.client.listeners.ConnectionListener#onConnectionMade(com.google.gwt.user.client.ui.Widget)
+   */
+  public void onConnectionMade(Widget sender) {
+    // no op    
   }
 }
