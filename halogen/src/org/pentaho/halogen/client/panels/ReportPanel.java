@@ -23,13 +23,16 @@ import org.pentaho.halogen.client.services.Olap4JServiceAsync;
 import org.pentaho.halogen.client.util.OlapData;
 import org.pentaho.halogen.client.widgets.OlapTable;
 
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.ClickListener;
+import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -37,7 +40,7 @@ import com.google.gwt.user.client.ui.Widget;
  * @author wseyler
  *
  */
-public class ReportPanel extends FlexTable implements ConnectionListener {
+public class ReportPanel extends DockPanel implements ConnectionListener {
 
   Olap4JServiceAsync olap4JService;
   String guid;
@@ -50,6 +53,8 @@ public class ReportPanel extends FlexTable implements ConnectionListener {
   CheckBox toggleParentMembers;
   OlapTable olapTable;
   Image chart;
+  FlexTable content;
+  boolean showGrid = true, showChart = true;
   
   public ReportPanel(Olap4JServiceAsync olap4JService, String guid, Messages messages) {
     super();
@@ -63,7 +68,8 @@ public class ReportPanel extends FlexTable implements ConnectionListener {
    * 
    */
   private void init() {
-    this.setText(0, 0, messages.mdx_query());
+  	content = new FlexTable(); 	
+    content.setText(0, 0, messages.mdx_query());
     mdxText = new TextArea();
     mdxText.setWidth("300px"); //$NON-NLS-1$
     mdxText.setHeight("100px"); //$NON-NLS-1$
@@ -78,117 +84,130 @@ public class ReportPanel extends FlexTable implements ConnectionListener {
                     "SELECT {[Measures].[Store Sales], [Measures].[Profit]} ON COLUMNS, " + //$NON-NLS-1$
                     "{[Product].CurrentMember.Children} ON ROWS " + //$NON-NLS-1$
                     "FROM [Sales]" ); //$NON-NLS-1$
-    this.setWidget(0, 1, mdxText);
+    content.setWidget(0, 1, mdxText);
     olapTable = new OlapTable(messages);
-    getFlexCellFormatter().setColSpan(1, 0, 4);
-    this.setWidget(1, 0, olapTable);
+    content.getFlexCellFormatter().setColSpan(1, 0, 4);
+    content.setWidget(1, 0, olapTable);
     chart = new Image();
-    getFlexCellFormatter().setColSpan(2, 0, 4);
-    this.setWidget(2, 0, chart);
+    content.getFlexCellFormatter().setColSpan(2, 0, 4);
+    content.setWidget(2, 0, chart);
+    
+    // Create the execute MDX button
     executeMDXBtn = new Button(messages.execute_mdx(), new ClickListener(){
-
       public void onClick(Widget sender) {
-        olap4JService.executeMDXStr(mdxText.getText(), guid, new AsyncCallback() {
+      	doExecuteMDX();
+	    }     
+    });
+    content.setWidget(3, 0, executeMDXBtn);
+    
+    // Create the execute query model button
+    executeQueryBtn = new Button(messages.execute_query(), new ClickListener() {
+      public void onClick(Widget sender) {
+      	doExecuteQueryModel();      
+      }     
+    });
+    content.setWidget(3, 1, executeQueryBtn);
+    
+    // Create the swap axis button
+    swapAxisBtn = new Button(messages.swap_axis(), new ClickListener() {
+      public void onClick(Widget sender) {
+        doSwapAxis();
+      }      
+    });
+    content.setWidget(3, 2, swapAxisBtn);
+    
+    // Create toggle for the parents
+    toggleParentMembers = new CheckBox(messages.toggle_parents());
+    toggleParentMembers.setChecked(olapTable.isShowParentMembers());
+    toggleParentMembers.addClickListener(new ClickListener() {
+      public void onClick(Widget sender) {
+        boolean checked = ((CheckBox)sender).isChecked();
+        olapTable.setShowParentMembers(checked);
+      }      
+    });
+    content.setWidget(3, 3, toggleParentMembers);
+    this.add(content, DockPanel.CENTER);
+    this.add(new ReportMenuBar(), DockPanel.NORTH);
+  }
+  
+  public void doExecuteMDX() {
+    olap4JService.executeMDXStr(mdxText.getText(), guid, new AsyncCallback() {
 
-          public void onSuccess(Object result) {
-            olapTable.setData((OlapData)result);
-            olap4JService.createChart((OlapData)result, new AsyncCallback() {
+      public void onSuccess(Object result) {
+        olapTable.setData((OlapData)result);
+        olap4JService.createChart((OlapData)result, new AsyncCallback() {
 
-              public void onFailure(Throwable caught) {
-                Window.alert(messages.no_server_data(caught.toString()));
-              }
-
-              public void onSuccess(Object result) {
-                chart.setUrl(result.toString());
-              }
-              
-            });
-          }
-          
           public void onFailure(Throwable caught) {
             Window.alert(messages.no_server_data(caught.toString()));
           }
 
-        });
-      }
-      
-    });
-    this.setWidget(3, 0, executeMDXBtn);
-    executeQueryBtn = new Button(messages.execute_query(), new ClickListener() {
-
-      public void onClick(Widget sender) {
-        olap4JService.executeQuery(guid, new AsyncCallback() {
-
           public void onSuccess(Object result) {
-            olapTable.setData((OlapData)result);
-            olap4JService.createChart((OlapData)result, new AsyncCallback() {
-
-              public void onFailure(Throwable caught) {
-                Window.alert(messages.no_server_data(caught.toString()));
-              }
-
-              public void onSuccess(Object result) {
-                chart.setUrl(result.toString());
-              }
-              
-            });
-          }
-          
-          public void onFailure(Throwable caught) {
-            Window.alert(messages.no_server_data(caught.toString()));      
-          }
-
-        });
-        
-      }
-      
-    });
-    this.setWidget(3, 1, executeQueryBtn);
-    
-    swapAxisBtn = new Button(messages.swap_axis(), new ClickListener() {
-
-      public void onClick(Widget sender) {
-        olap4JService.swapAxis(guid, new AsyncCallback() {
-
-          public void onFailure(Throwable caught) {
-            Window.alert(messages.no_server_data(caught.toString()));   
-          }
-
-          public void onSuccess(Object result) {
-            olapTable.setData((OlapData) result);
-            olap4JService.createChart((OlapData)result, new AsyncCallback() {
-
-              public void onFailure(Throwable caught) {
-                Window.alert(messages.no_server_data(caught.toString()));
-              }
-
-              public void onSuccess(Object result) {
-                chart.setUrl(result.toString());
-              }
-              
-            });
+            chart.setUrl(result.toString());
           }
           
         });
       }
       
-    });
-    this.setWidget(3, 2, swapAxisBtn);
-    
-    toggleParentMembers = new CheckBox(messages.toggle_parents());
-    toggleParentMembers.setChecked(olapTable.isShowParentMembers());
-    toggleParentMembers.addClickListener(new ClickListener() {
-
-      public void onClick(Widget sender) {
-        boolean checked = ((CheckBox)sender).isChecked();
-        olapTable.setShowParentMembers(checked);
+      public void onFailure(Throwable caught) {
+        Window.alert(messages.no_server_data(caught.toString()));
       }
-      
+
     });
-    this.setWidget(3, 3, toggleParentMembers);
   }
+  
+  public void doExecuteQueryModel() {
+    olap4JService.executeQuery(guid, new AsyncCallback() {
 
-  /* (non-Javadoc)
+      public void onSuccess(Object result) {
+        olapTable.setData((OlapData)result);
+        olap4JService.createChart((OlapData)result, new AsyncCallback() {
+
+          public void onFailure(Throwable caught) {
+            Window.alert(messages.no_server_data(caught.toString()));
+          }
+
+          public void onSuccess(Object result) {
+            chart.setUrl(result.toString());
+          }
+          
+        });
+      }
+      
+      public void onFailure(Throwable caught) {
+        Window.alert(messages.no_server_data(caught.toString()));      
+      }
+
+    });
+  	
+  }
+  
+  public void doSwapAxis() {
+    olap4JService.swapAxis(guid, new AsyncCallback() {
+
+      public void onFailure(Throwable caught) {
+        Window.alert(messages.no_server_data(caught.toString()));   
+      }
+
+      public void onSuccess(Object result) {
+        olapTable.setData((OlapData) result);
+        olap4JService.createChart((OlapData)result, new AsyncCallback() {
+
+          public void onFailure(Throwable caught) {
+            Window.alert(messages.no_server_data(caught.toString()));
+          }
+
+          public void onSuccess(Object result) {
+            chart.setUrl(result.toString());
+          }
+          
+        });
+      }
+      
+    });
+  	
+  }
+  
+    /* (non-Javadoc)
    * @see org.pentaho.halogen.client.listeners.ConnectionListener#onConnectionBroken(com.google.gwt.user.client.ui.Widget)
    */
   public void onConnectionBroken(Widget sender) {
@@ -200,5 +219,32 @@ public class ReportPanel extends FlexTable implements ConnectionListener {
    */
   public void onConnectionMade(Widget sender) {
     // no op    
+  }
+  
+  public class ReportMenuBar extends MenuBar {
+
+		public ReportMenuBar() {
+			super();
+			
+			// Create a the top level menus
+			MenuBar reportMenu = new MenuBar(true);
+			reportMenu.addItem("Execute Query", new Command() {
+				public void execute() {
+					doExecuteQueryModel();
+				}
+			});
+			reportMenu.addItem("Execute MDX", new Command() {
+				public void execute() {
+					doExecuteMDX();
+				}				
+			});
+			MenuBar gridMenu = new MenuBar(true);
+			MenuBar chartMenu = new MenuBar(true);
+			
+			this.addItem("Report", reportMenu);
+			this.addItem("Grid", gridMenu);
+			this.addItem("Chart", chartMenu);
+		}
+  	
   }
 }
