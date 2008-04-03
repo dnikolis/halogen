@@ -17,10 +17,11 @@
 
 package org.pentaho.halogen.client.panels;
 
-import org.pentaho.halogen.client.Messages;
 import org.pentaho.halogen.client.listeners.ConnectionListener;
-import org.pentaho.halogen.client.services.Olap4JServiceAsync;
+import org.pentaho.halogen.client.util.GuidFactory;
+import org.pentaho.halogen.client.util.MessageFactory;
 import org.pentaho.halogen.client.util.OlapData;
+import org.pentaho.halogen.client.util.ServiceFactory;
 import org.pentaho.halogen.client.widgets.OlapTable;
 
 import com.google.gwt.user.client.Command;
@@ -42,10 +43,6 @@ import com.google.gwt.user.client.ui.Widget;
  */
 public class ReportPanel extends DockPanel implements ConnectionListener {
 
-  Olap4JServiceAsync olap4JService;
-  String guid;
-  Messages messages;
-
   TextArea mdxText;
   Button executeMDXBtn;
   Button executeQueryBtn;
@@ -56,11 +53,9 @@ public class ReportPanel extends DockPanel implements ConnectionListener {
   FlexTable content;
   boolean showGrid = true, showChart = true;
   
-  public ReportPanel(Olap4JServiceAsync olap4JService, String guid, Messages messages) {
+  public ReportPanel() {
     super();
-    this.olap4JService = olap4JService;
-    this.guid = guid;
-    this.messages = messages;
+
     init();
   }
 
@@ -69,7 +64,7 @@ public class ReportPanel extends DockPanel implements ConnectionListener {
    */
   private void init() {
   	content = new FlexTable(); 	
-    content.setText(0, 0, messages.mdx_query());
+    content.setText(0, 0, MessageFactory.getMessages().mdx_query());
     mdxText = new TextArea();
     mdxText.setWidth("300px"); //$NON-NLS-1$
     mdxText.setHeight("100px"); //$NON-NLS-1$
@@ -85,7 +80,7 @@ public class ReportPanel extends DockPanel implements ConnectionListener {
                     "{[Product].CurrentMember.Children} ON ROWS " + //$NON-NLS-1$
                     "FROM [Sales]" ); //$NON-NLS-1$
     content.setWidget(0, 1, mdxText);
-    olapTable = new OlapTable(messages);
+    olapTable = new OlapTable(MessageFactory.getMessages());
     content.getFlexCellFormatter().setColSpan(1, 0, 4);
     content.setWidget(1, 0, olapTable);
     chart = new Image();
@@ -93,7 +88,7 @@ public class ReportPanel extends DockPanel implements ConnectionListener {
     content.setWidget(2, 0, chart);
     
     // Create the execute MDX button
-    executeMDXBtn = new Button(messages.execute_mdx(), new ClickListener(){
+    executeMDXBtn = new Button(MessageFactory.getMessages().execute_mdx(), new ClickListener(){
       public void onClick(Widget sender) {
       	doExecuteMDX();
 	    }     
@@ -101,7 +96,7 @@ public class ReportPanel extends DockPanel implements ConnectionListener {
     content.setWidget(3, 0, executeMDXBtn);
     
     // Create the execute query model button
-    executeQueryBtn = new Button(messages.execute_query(), new ClickListener() {
+    executeQueryBtn = new Button(MessageFactory.getMessages().execute_query(), new ClickListener() {
       public void onClick(Widget sender) {
       	doExecuteQueryModel();      
       }     
@@ -109,7 +104,7 @@ public class ReportPanel extends DockPanel implements ConnectionListener {
     content.setWidget(3, 1, executeQueryBtn);
     
     // Create the swap axis button
-    swapAxisBtn = new Button(messages.swap_axis(), new ClickListener() {
+    swapAxisBtn = new Button(MessageFactory.getMessages().swap_axis(), new ClickListener() {
       public void onClick(Widget sender) {
         doSwapAxis();
       }      
@@ -117,7 +112,7 @@ public class ReportPanel extends DockPanel implements ConnectionListener {
     content.setWidget(3, 2, swapAxisBtn);
     
     // Create toggle for the parents
-    toggleParentMembers = new CheckBox(messages.toggle_parents());
+    toggleParentMembers = new CheckBox(MessageFactory.getMessages().toggle_parents());
     toggleParentMembers.setChecked(olapTable.isShowParentMembers());
     toggleParentMembers.addClickListener(new ClickListener() {
       public void onClick(Widget sender) {
@@ -131,50 +126,50 @@ public class ReportPanel extends DockPanel implements ConnectionListener {
   }
   
   public void doExecuteMDX() {
-    olap4JService.executeMDXStr(mdxText.getText(), guid, new AsyncCallback() {
+    ServiceFactory.getService().executeMDXStr(mdxText.getText(), GuidFactory.getGuid(), new AsyncCallback() {
 
-      public void onSuccess(Object result) {
-        olapTable.setData((OlapData)result);
-        olap4JService.createChart((OlapData)result, new AsyncCallback() {
+      public void onSuccess(Object result1) {
+        olapTable.setData((OlapData)result1);
+        ServiceFactory.getService().createChart((OlapData)result1, new AsyncCallback() {
 
           public void onFailure(Throwable caught) {
-            Window.alert(messages.no_server_data(caught.toString()));
+            Window.alert(MessageFactory.getMessages().no_server_data(caught.toString()));
           }
 
-          public void onSuccess(Object result) {
-            chart.setUrl(result.toString());
+          public void onSuccess(Object result2) {
+            chart.setUrl(result2.toString());
           }
           
         });
       }
       
       public void onFailure(Throwable caught) {
-        Window.alert(messages.no_server_data(caught.toString()));
+        Window.alert(MessageFactory.getMessages().no_server_data(caught.toString()));
       }
 
     });
   }
   
   public void doExecuteQueryModel() {
-    olap4JService.executeQuery(guid, new AsyncCallback() {
+    ServiceFactory.getService().executeQuery(GuidFactory.getGuid(), new AsyncCallback() {
 
-      public void onSuccess(Object result) {
-        olapTable.setData((OlapData)result);
-        olap4JService.createChart((OlapData)result, new AsyncCallback() {
+      public void onSuccess(Object result1) {
+        olapTable.setData((OlapData)result1);
+        ServiceFactory.getService().createChart((OlapData)result1, new AsyncCallback() {
 
           public void onFailure(Throwable caught) {
-            Window.alert(messages.no_server_data(caught.toString()));
+            Window.alert(MessageFactory.getMessages().no_server_data(caught.toString()));
           }
 
-          public void onSuccess(Object result) {
-            chart.setUrl(result.toString());
+          public void onSuccess(Object result2) {
+            chart.setUrl(result2.toString());
           }
           
         });
       }
       
       public void onFailure(Throwable caught) {
-        Window.alert(messages.no_server_data(caught.toString()));      
+        Window.alert(MessageFactory.getMessages().no_server_data(caught.toString()));      
       }
 
     });
@@ -182,22 +177,22 @@ public class ReportPanel extends DockPanel implements ConnectionListener {
   }
   
   public void doSwapAxis() {
-    olap4JService.swapAxis(guid, new AsyncCallback() {
+    ServiceFactory.getService().swapAxis(GuidFactory.getGuid(), new AsyncCallback() {
 
       public void onFailure(Throwable caught) {
-        Window.alert(messages.no_server_data(caught.toString()));   
+        Window.alert(MessageFactory.getMessages().no_server_data(caught.toString()));   
       }
 
-      public void onSuccess(Object result) {
-        olapTable.setData((OlapData) result);
-        olap4JService.createChart((OlapData)result, new AsyncCallback() {
+      public void onSuccess(Object result1) {
+        olapTable.setData((OlapData) result1);
+        ServiceFactory.getService().createChart((OlapData)result1, new AsyncCallback() {
 
           public void onFailure(Throwable caught) {
-            Window.alert(messages.no_server_data(caught.toString()));
+            Window.alert(MessageFactory.getMessages().no_server_data(caught.toString()));
           }
 
-          public void onSuccess(Object result) {
-            chart.setUrl(result.toString());
+          public void onSuccess(Object result2) {
+            chart.setUrl(result2.toString());
           }
           
         });

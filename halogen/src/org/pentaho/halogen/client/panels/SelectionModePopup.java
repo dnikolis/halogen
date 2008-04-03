@@ -17,8 +17,8 @@
 
 package org.pentaho.halogen.client.panels;
 
-import org.pentaho.halogen.client.Messages;
-import org.pentaho.halogen.client.services.Olap4JServiceAsync;
+import org.pentaho.halogen.client.util.MessageFactory;
+import org.pentaho.halogen.client.util.ServiceFactory;
 import org.pentaho.halogen.client.widgets.MemberSelectionLabel;
 
 import com.google.gwt.user.client.Command;
@@ -44,21 +44,16 @@ public class SelectionModePopup extends PopupPanel {
   public static final int SIBLINGS = 3;
   public static final int CLEAR = -1;
 
-  Olap4JServiceAsync olap4JService;
   String guid;
-  Messages messages;
   
   MenuBar menuBar;
   
   Integer selectionValue = new Integer(0); // Member
   Widget source;
 
-  public SelectionModePopup(Olap4JServiceAsync olap4JService, String guid, Messages messages) {
-    super(false, true);
-    
-    this.olap4JService = olap4JService;
+  public SelectionModePopup(String guid) {
+    super(false, true); 
     this.guid = guid;
-    this.messages = messages;
         
     init();
   }
@@ -69,11 +64,11 @@ public class SelectionModePopup extends PopupPanel {
   protected void init() {
     menuBar = new MenuBar(true);
     menuBar.setAutoOpen(true);
-    menuBar.addItem(new MenuItem(messages.member(), new SelectionModeCommand(MEMBER)));
-    menuBar.addItem(new MenuItem(messages.children(), new SelectionModeCommand(CHILDREN)));
-    menuBar.addItem(new MenuItem(messages.include_children(), new SelectionModeCommand(INCLUDE_CHILDREN)));
-    menuBar.addItem(new MenuItem(messages.siblings(), new SelectionModeCommand(SIBLINGS)));
-    menuBar.addItem(new MenuItem(messages.clear_selections(), new SelectionModeClearCommand()));
+    menuBar.addItem(new MenuItem(MessageFactory.getMessages().member(), new SelectionModeCommand(MEMBER)));
+    menuBar.addItem(new MenuItem(MessageFactory.getMessages().children(), new SelectionModeCommand(CHILDREN)));
+    menuBar.addItem(new MenuItem(MessageFactory.getMessages().include_children(), new SelectionModeCommand(INCLUDE_CHILDREN)));
+    menuBar.addItem(new MenuItem(MessageFactory.getMessages().siblings(), new SelectionModeCommand(SIBLINGS)));
+    menuBar.addItem(new MenuItem(MessageFactory.getMessages().clear_selections(), new SelectionModeClearCommand()));
     
     this.setWidget(menuBar);
   }
@@ -93,16 +88,6 @@ public class SelectionModePopup extends PopupPanel {
   public void setSource(Widget source) {
     this.source = source;
   }
-
-
-
-  public Olap4JServiceAsync getOlap4JService() {
-    return olap4JService;
-  }
-
-  public void setOlap4JService(Olap4JServiceAsync olap4JService) {
-    this.olap4JService = olap4JService;
-  } 
 
   /**
    * @param targetLabel
@@ -134,9 +119,9 @@ public class SelectionModePopup extends PopupPanel {
     public void execute() {
       final MemberSelectionLabel targetLabel = (MemberSelectionLabel)getSource();
       String dimName = getDimensionName(targetLabel);
-      getOlap4JService().createSelection(dimName, targetLabel.getFullPath(), new Integer(selectionMode), guid, new AsyncCallback() {
+      ServiceFactory.getService().createSelection(dimName, targetLabel.getFullPath(), new Integer(selectionMode), guid, new AsyncCallback() {
         public void onFailure(Throwable caught) {
-          Window.alert(messages.no_selection_set(caught.getLocalizedMessage()));
+          Window.alert(MessageFactory.getMessages().no_selection_set(caught.getLocalizedMessage()));
         }
         public void onSuccess(Object result) {
           if (((Boolean)result).booleanValue()) {
@@ -160,9 +145,9 @@ public class SelectionModePopup extends PopupPanel {
     public void execute() {
       final MemberSelectionLabel targetLabel = (MemberSelectionLabel)getSource();
       String dimName = getDimensionName(targetLabel);
-      getOlap4JService().clearSelection(dimName, targetLabel.getFullPath(), guid, new AsyncCallback() {
+      ServiceFactory.getService().clearSelection(dimName, targetLabel.getFullPath(), guid, new AsyncCallback() {
         public void onFailure(Throwable caught) {
-          Window.alert(messages.no_selection_cleared(caught.getLocalizedMessage()));
+          Window.alert(MessageFactory.getMessages().no_selection_cleared(caught.getLocalizedMessage()));
         }
         public void onSuccess(Object result) {
           if (((Boolean)result).booleanValue()) {
