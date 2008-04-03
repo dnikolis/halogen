@@ -20,7 +20,7 @@ package org.pentaho.halogen.client;
 import org.pentaho.halogen.client.panels.ConnectionPanel;
 import org.pentaho.halogen.client.panels.DimensionPanel;
 import org.pentaho.halogen.client.panels.ReportPanel;
-import org.pentaho.halogen.client.services.Olap4JServiceAsync;
+import org.pentaho.halogen.client.util.MessageFactory;
 
 import com.google.gwt.user.client.ui.TabPanel;
 
@@ -29,15 +29,9 @@ import com.google.gwt.user.client.ui.TabPanel;
  *
  */
 public class HalogenTabPanel extends TabPanel {
-  Messages messages;
-  Olap4JServiceAsync olap4JService;
-  String guid;
   
-  public HalogenTabPanel(Olap4JServiceAsync olap4JService, String guid, Messages messages) {
+  public HalogenTabPanel() {
     super();
-    this.olap4JService = olap4JService;
-    this.guid = guid;
-    this.messages = messages;
     
     init();
   }
@@ -46,16 +40,16 @@ public class HalogenTabPanel extends TabPanel {
    * 
    */
   private void init() {
-    DimensionPanel dimensionPanel = new DimensionPanel(olap4JService, guid, messages);
-    ConnectionPanel connectionPanel = new ConnectionPanel(olap4JService, guid, messages);
-    ReportPanel reportPanel = new ReportPanel(olap4JService, guid, messages);
+    DimensionPanel dimensionPanel = new DimensionPanel();
+    ConnectionPanel connectionPanel = new ConnectionPanel();
+    ReportPanel reportPanel = new ReportPanel();
 
     connectionPanel.addConnectionListener(dimensionPanel);
     connectionPanel.addConnectionListener(reportPanel);
     
-    this.add(connectionPanel, messages.connection());
-    this.add(dimensionPanel, messages.selections());
-    this.add(reportPanel, messages.report());
+    this.add(connectionPanel, MessageFactory.getMessages().connection());
+    this.add(dimensionPanel, MessageFactory.getMessages().selections());
+    this.add(reportPanel, MessageFactory.getMessages().report());
     
     selectTab(0);
     this.addTabListener(connectionPanel);
