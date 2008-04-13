@@ -17,7 +17,6 @@
 
 package org.pentaho.halogen.client.panels;
 
-import org.pentaho.halogen.client.Messages;
 import org.pentaho.halogen.client.listeners.ConnectionListener;
 import org.pentaho.halogen.client.listeners.ConnectionListenerCollection;
 import org.pentaho.halogen.client.listeners.SourcesConnectionEvents;
@@ -60,7 +59,7 @@ public class ConnectionPanel extends FlexTable implements TabListener, SourcesCo
    */
   private void init() {
    
-    this.setText(0, 0, MessageFactory.getMessages().connection_string());
+    this.setText(0, 0, MessageFactory.getInstance().connection_string());
     connectionText = new TextArea();
     connectionText.addChangeListener(new ChangeListener() {
       public void onChange(Widget sender) {
@@ -71,14 +70,14 @@ public class ConnectionPanel extends FlexTable implements TabListener, SourcesCo
     connectionText.setWidth("300px"); //$NON-NLS-1$
     connectionText.setHeight("100px"); //$NON-NLS-1$
     connectionText.setText("jdbc:mondrian:Jdbc=jdbc:mysql://localhost:3306/foodmart?user=foodmart&password=foodmart;"+ //$NON-NLS-1$
-                           "Catalog=/Users/wseyler/Documents/lib-src/mondrian-2.3.2.8944/demo/FoodMart.xml"); //$NON-NLS-1$
+                           "Catalog=/Users/wseyler/Downloads/mondrian-2.4.2.9831/demo/FoodMart.xml"); //$NON-NLS-1$
     this.setWidget(0, 1, connectionText);
-    connectBtn = new Button(MessageFactory.getMessages().connect());
+    connectBtn = new Button(MessageFactory.getInstance().connect());
     connectBtn.addClickListener(new ClickListener() {
       public void onClick(Widget sender) {
-        if (connectBtn.getHTML().equals(MessageFactory.getMessages().connect())) {
+        if (connectBtn.getHTML().equals(MessageFactory.getInstance().connect())) {
           connect(connectionText.getText());
-        } else if (connectBtn.getHTML().equals(MessageFactory.getMessages().disconnect())) {
+        } else if (connectBtn.getHTML().equals(MessageFactory.getInstance().disconnect())) {
           disconnect();
         }               
       }     
@@ -111,7 +110,7 @@ public class ConnectionPanel extends FlexTable implements TabListener, SourcesCo
   
   public void connect(String connectionStr) {
     if (!isConnectionEstablished()) {
-      ServiceFactory.getService().connect(connectionStr, GuidFactory.getGuid(), new AsyncCallback() {
+      ServiceFactory.getInstance().connect(connectionStr, GuidFactory.getGuid(), new AsyncCallback() {
         public void onSuccess(Object result) {
           Boolean booleanResult = (Boolean)result;
           if (booleanResult.booleanValue()) {
@@ -121,12 +120,12 @@ public class ConnectionPanel extends FlexTable implements TabListener, SourcesCo
             setConnectionEstablished(false);
             connectionListeners.fireConnectionBroken(ConnectionPanel.this);
           }
-          connectBtn.setHTML(isConnectionEstablished() ? MessageFactory.getMessages().disconnect() : MessageFactory.getMessages().connect());
+          connectBtn.setHTML(isConnectionEstablished() ? MessageFactory.getInstance().disconnect() : MessageFactory.getInstance().connect());
         }
         public void onFailure(Throwable caught) {
-          Window.alert(MessageFactory.getMessages().no_connection_param(caught.getLocalizedMessage()));
+          Window.alert(MessageFactory.getInstance().no_connection_param(caught.getLocalizedMessage()));
           setConnectionEstablished(false);
-          connectBtn.setHTML(isConnectionEstablished() ? MessageFactory.getMessages().disconnect() : MessageFactory.getMessages().connect());
+          connectBtn.setHTML(isConnectionEstablished() ? MessageFactory.getInstance().disconnect() : MessageFactory.getInstance().connect());
         }      
       });
     }
@@ -134,17 +133,17 @@ public class ConnectionPanel extends FlexTable implements TabListener, SourcesCo
   
   public void disconnect() {
     if (isConnectionEstablished()) {
-      ServiceFactory.getService().disconnect(GuidFactory.getGuid(), new AsyncCallback() {
+      ServiceFactory.getInstance().disconnect(GuidFactory.getGuid(), new AsyncCallback() {
         public void onFailure(Throwable caught) {
-          Window.alert(MessageFactory.getMessages().no_connection_param(caught.getLocalizedMessage()));
+          Window.alert(MessageFactory.getInstance().no_connection_param(caught.getLocalizedMessage()));
           setConnectionEstablished(false);
           connectionListeners.fireConnectionBroken(ConnectionPanel.this);
-          connectBtn.setHTML(isConnectionEstablished() ? MessageFactory.getMessages().disconnect() : MessageFactory.getMessages().connect());
+          connectBtn.setHTML(isConnectionEstablished() ? MessageFactory.getInstance().disconnect() : MessageFactory.getInstance().connect());
         }
         public void onSuccess(Object result) {
           setConnectionEstablished(false);
           connectionListeners.fireConnectionBroken(ConnectionPanel.this);
-          connectBtn.setHTML(isConnectionEstablished() ? MessageFactory.getMessages().disconnect() : MessageFactory.getMessages().connect());
+          connectBtn.setHTML(isConnectionEstablished() ? MessageFactory.getInstance().disconnect() : MessageFactory.getInstance().connect());
         }       
       });
     }

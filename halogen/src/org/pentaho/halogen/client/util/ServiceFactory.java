@@ -30,7 +30,7 @@ import com.google.gwt.user.client.rpc.ServiceDefTarget;
 public class ServiceFactory {
   static Olap4JServiceAsync service = null;
   
-  public static Olap4JServiceAsync getService() {
+  public static Olap4JServiceAsync getInstance() {
     if (service == null) {
       service = (Olap4JServiceAsync) GWT.create(Olap4JService.class);
       ServiceDefTarget endpoint = (ServiceDefTarget) service;

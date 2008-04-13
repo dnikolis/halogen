@@ -64,7 +64,7 @@ public class ReportPanel extends DockPanel implements ConnectionListener {
    */
   private void init() {
   	content = new FlexTable(); 	
-    content.setText(0, 0, MessageFactory.getMessages().mdx_query());
+    content.setText(0, 0, MessageFactory.getInstance().mdx_query());
     mdxText = new TextArea();
     mdxText.setWidth("300px"); //$NON-NLS-1$
     mdxText.setHeight("100px"); //$NON-NLS-1$
@@ -80,7 +80,7 @@ public class ReportPanel extends DockPanel implements ConnectionListener {
                     "{[Product].CurrentMember.Children} ON ROWS " + //$NON-NLS-1$
                     "FROM [Sales]" ); //$NON-NLS-1$
     content.setWidget(0, 1, mdxText);
-    olapTable = new OlapTable(MessageFactory.getMessages());
+    olapTable = new OlapTable(MessageFactory.getInstance());
     content.getFlexCellFormatter().setColSpan(1, 0, 4);
     content.setWidget(1, 0, olapTable);
     chart = new Image();
@@ -88,7 +88,7 @@ public class ReportPanel extends DockPanel implements ConnectionListener {
     content.setWidget(2, 0, chart);
     
     // Create the execute MDX button
-    executeMDXBtn = new Button(MessageFactory.getMessages().execute_mdx(), new ClickListener(){
+    executeMDXBtn = new Button(MessageFactory.getInstance().execute_mdx(), new ClickListener(){
       public void onClick(Widget sender) {
       	doExecuteMDX();
 	    }     
@@ -96,7 +96,7 @@ public class ReportPanel extends DockPanel implements ConnectionListener {
     content.setWidget(3, 0, executeMDXBtn);
     
     // Create the execute query model button
-    executeQueryBtn = new Button(MessageFactory.getMessages().execute_query(), new ClickListener() {
+    executeQueryBtn = new Button(MessageFactory.getInstance().execute_query(), new ClickListener() {
       public void onClick(Widget sender) {
       	doExecuteQueryModel();      
       }     
@@ -104,7 +104,7 @@ public class ReportPanel extends DockPanel implements ConnectionListener {
     content.setWidget(3, 1, executeQueryBtn);
     
     // Create the swap axis button
-    swapAxisBtn = new Button(MessageFactory.getMessages().swap_axis(), new ClickListener() {
+    swapAxisBtn = new Button(MessageFactory.getInstance().swap_axis(), new ClickListener() {
       public void onClick(Widget sender) {
         doSwapAxis();
       }      
@@ -112,7 +112,7 @@ public class ReportPanel extends DockPanel implements ConnectionListener {
     content.setWidget(3, 2, swapAxisBtn);
     
     // Create toggle for the parents
-    toggleParentMembers = new CheckBox(MessageFactory.getMessages().toggle_parents());
+    toggleParentMembers = new CheckBox(MessageFactory.getInstance().toggle_parents());
     toggleParentMembers.setChecked(olapTable.isShowParentMembers());
     toggleParentMembers.addClickListener(new ClickListener() {
       public void onClick(Widget sender) {
@@ -126,14 +126,14 @@ public class ReportPanel extends DockPanel implements ConnectionListener {
   }
   
   public void doExecuteMDX() {
-    ServiceFactory.getService().executeMDXStr(mdxText.getText(), GuidFactory.getGuid(), new AsyncCallback() {
+    ServiceFactory.getInstance().executeMDXStr(mdxText.getText(), GuidFactory.getGuid(), new AsyncCallback() {
 
       public void onSuccess(Object result1) {
         olapTable.setData((OlapData)result1);
-        ServiceFactory.getService().createChart((OlapData)result1, new AsyncCallback() {
+        ServiceFactory.getInstance().createChart((OlapData)result1, new AsyncCallback() {
 
           public void onFailure(Throwable caught) {
-            Window.alert(MessageFactory.getMessages().no_server_data(caught.toString()));
+            Window.alert(MessageFactory.getInstance().no_server_data(caught.toString()));
           }
 
           public void onSuccess(Object result2) {
@@ -144,21 +144,21 @@ public class ReportPanel extends DockPanel implements ConnectionListener {
       }
       
       public void onFailure(Throwable caught) {
-        Window.alert(MessageFactory.getMessages().no_server_data(caught.toString()));
+        Window.alert(MessageFactory.getInstance().no_server_data(caught.toString()));
       }
 
     });
   }
   
   public void doExecuteQueryModel() {
-    ServiceFactory.getService().executeQuery(GuidFactory.getGuid(), new AsyncCallback() {
+    ServiceFactory.getInstance().executeQuery(GuidFactory.getGuid(), new AsyncCallback() {
 
       public void onSuccess(Object result1) {
         olapTable.setData((OlapData)result1);
-        ServiceFactory.getService().createChart((OlapData)result1, new AsyncCallback() {
+        ServiceFactory.getInstance().createChart((OlapData)result1, new AsyncCallback() {
 
           public void onFailure(Throwable caught) {
-            Window.alert(MessageFactory.getMessages().no_server_data(caught.toString()));
+            Window.alert(MessageFactory.getInstance().no_server_data(caught.toString()));
           }
 
           public void onSuccess(Object result2) {
@@ -169,7 +169,7 @@ public class ReportPanel extends DockPanel implements ConnectionListener {
       }
       
       public void onFailure(Throwable caught) {
-        Window.alert(MessageFactory.getMessages().no_server_data(caught.toString()));      
+        Window.alert(MessageFactory.getInstance().no_server_data(caught.toString()));      
       }
 
     });
@@ -177,18 +177,18 @@ public class ReportPanel extends DockPanel implements ConnectionListener {
   }
   
   public void doSwapAxis() {
-    ServiceFactory.getService().swapAxis(GuidFactory.getGuid(), new AsyncCallback() {
+    ServiceFactory.getInstance().swapAxis(GuidFactory.getGuid(), new AsyncCallback() {
 
       public void onFailure(Throwable caught) {
-        Window.alert(MessageFactory.getMessages().no_server_data(caught.toString()));   
+        Window.alert(MessageFactory.getInstance().no_server_data(caught.toString()));   
       }
 
       public void onSuccess(Object result1) {
         olapTable.setData((OlapData) result1);
-        ServiceFactory.getService().createChart((OlapData)result1, new AsyncCallback() {
+        ServiceFactory.getInstance().createChart((OlapData)result1, new AsyncCallback() {
 
           public void onFailure(Throwable caught) {
-            Window.alert(MessageFactory.getMessages().no_server_data(caught.toString()));
+            Window.alert(MessageFactory.getInstance().no_server_data(caught.toString()));
           }
 
           public void onSuccess(Object result2) {

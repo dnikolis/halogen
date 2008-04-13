@@ -80,7 +80,7 @@ public class DimensionPanel extends FlexTable implements ConnectionListener {
     
     cubeListBox.addChangeListener(new ChangeListener() {
       public void onChange(Widget sender) {
-        ServiceFactory.getService().setCube(cubeListBox.getItemText(cubeListBox.getSelectedIndex()), GuidFactory.getGuid(), new AsyncCallback() {
+        ServiceFactory.getInstance().setCube(cubeListBox.getItemText(cubeListBox.getSelectedIndex()), GuidFactory.getGuid(), new AsyncCallback() {
           public void onSuccess(Object result) {
             populateDimensions();
           }         
@@ -89,14 +89,14 @@ public class DimensionPanel extends FlexTable implements ConnectionListener {
       } 
     });
     cubeListBox.setVisibleItemCount(1); // Make this a drop down list
-    this.setText(0, 1, MessageFactory.getMessages().select_cube());
+    this.setText(0, 1, MessageFactory.getInstance().select_cube());
     this.setWidget(0, 2, cubeListBox);
 
     // Set up the Dimensions List
-    this.setText(1, 0, MessageFactory.getMessages().dimensions());
-    this.setText(1, 1, MessageFactory.getMessages().row_dimensions());
-    this.setText(1, 2, MessageFactory.getMessages().column_dimensions());
-    this.setText(1, 3, MessageFactory.getMessages().filter_dimensions());
+    this.setText(1, 0, MessageFactory.getInstance().dimensions());
+    this.setText(1, 1, MessageFactory.getInstance().row_dimensions());
+    this.setText(1, 2, MessageFactory.getInstance().column_dimensions());
+    this.setText(1, 3, MessageFactory.getInstance().filter_dimensions());
     
     dimensionsList = new ListBox();
     dimensionsList.addClickListener(new ClickListener() {
@@ -130,11 +130,11 @@ public class DimensionPanel extends FlexTable implements ConnectionListener {
     this.setWidget(2, 3, scroller);
 
     // Set up the Move To Row Button
-    moveToRowButton = new Button(MessageFactory.getMessages().move_to_row());
+    moveToRowButton = new Button(MessageFactory.getInstance().move_to_row());
     moveToRowButton.addClickListener(new ClickListener() {
       public void onClick(Widget sender) {
         String dimName = dimensionsList.getValue(dimensionsList.getSelectedIndex());
-        ServiceFactory.getService().moveDimension(AXIS_ROWS, dimName, GuidFactory.getGuid(), new AsyncCallback() {
+        ServiceFactory.getInstance().moveDimension(AXIS_ROWS, dimName, GuidFactory.getGuid(), new AsyncCallback() {
           public void onSuccess(Object result) {
             boolean success = ((Boolean)result).booleanValue();
             if (success) {
@@ -155,11 +155,11 @@ public class DimensionPanel extends FlexTable implements ConnectionListener {
     moveToRowButton.setEnabled(false);
     
     // Set up the Move To Column Button
-    moveToColButton = new Button(MessageFactory.getMessages().move_to_column());
+    moveToColButton = new Button(MessageFactory.getInstance().move_to_column());
     moveToColButton.addClickListener(new ClickListener() {
       public void onClick(Widget sender) {
         String dimName = dimensionsList.getValue(dimensionsList.getSelectedIndex());
-        ServiceFactory.getService().moveDimension(AXIS_COLUMNS, dimName, GuidFactory.getGuid(), new AsyncCallback() {
+        ServiceFactory.getInstance().moveDimension(AXIS_COLUMNS, dimName, GuidFactory.getGuid(), new AsyncCallback() {
           public void onSuccess(Object result) {
             boolean success = ((Boolean)result).booleanValue();
             if (success) {
@@ -179,11 +179,11 @@ public class DimensionPanel extends FlexTable implements ConnectionListener {
     this.setWidget(3, 2, moveToColButton);
     moveToColButton.setEnabled(false);
     
-    moveToFilterButton = new Button(MessageFactory.getMessages().move_to_filter());
+    moveToFilterButton = new Button(MessageFactory.getInstance().move_to_filter());
     moveToFilterButton.addClickListener(new ClickListener() {
       public void onClick(Widget sender) {
         String dimName = dimensionsList.getValue(dimensionsList.getSelectedIndex());
-        ServiceFactory.getService().moveDimension(AXIS_FILTER, dimName, GuidFactory.getGuid(), new AsyncCallback() {
+        ServiceFactory.getInstance().moveDimension(AXIS_FILTER, dimName, GuidFactory.getGuid(), new AsyncCallback() {
           public void onSuccess(Object result) {
             boolean success = ((Boolean)result).booleanValue();
             if (success) {
@@ -217,7 +217,7 @@ public class DimensionPanel extends FlexTable implements ConnectionListener {
    */
   public void populateDimensions( List axis) {
     if (axis.contains(AXIS_NONE)) {
-      ServiceFactory.getService().getDimensions(AXIS_NONE, GuidFactory.getGuid(), new AsyncCallback() {
+      ServiceFactory.getInstance().getDimensions(AXIS_NONE, GuidFactory.getGuid(), new AsyncCallback() {
         public void onSuccess(Object result) {
           String[] dimStrs = (String[]) result;
           dimensionsList.clear();
@@ -236,7 +236,7 @@ public class DimensionPanel extends FlexTable implements ConnectionListener {
     }
     
     if (axis.contains(AXIS_ROWS)) {
-      ServiceFactory.getService().getDimensions(AXIS_ROWS, GuidFactory.getGuid(), new AsyncCallback() {
+      ServiceFactory.getInstance().getDimensions(AXIS_ROWS, GuidFactory.getGuid(), new AsyncCallback() {
   
         public void onSuccess(Object result) {
           String[] dimStrs = (String[]) result;
@@ -255,7 +255,7 @@ public class DimensionPanel extends FlexTable implements ConnectionListener {
     }
     
     if (axis.contains(AXIS_COLUMNS)) {
-      ServiceFactory.getService().getDimensions(AXIS_COLUMNS, GuidFactory.getGuid(), new AsyncCallback() {
+      ServiceFactory.getInstance().getDimensions(AXIS_COLUMNS, GuidFactory.getGuid(), new AsyncCallback() {
   
         public void onSuccess(Object result) {
           String[] dimStrs = (String[]) result;
@@ -274,7 +274,7 @@ public class DimensionPanel extends FlexTable implements ConnectionListener {
     }
     
     if (axis.contains(AXIS_FILTER)) {
-      ServiceFactory.getService().getDimensions(AXIS_FILTER, GuidFactory.getGuid(), new AsyncCallback() {
+      ServiceFactory.getInstance().getDimensions(AXIS_FILTER, GuidFactory.getGuid(), new AsyncCallback() {
 
         public void onSuccess(Object result) {
           String[] dimStrs = (String[]) result;
@@ -294,7 +294,7 @@ public class DimensionPanel extends FlexTable implements ConnectionListener {
   
   protected Tree getDimTree(String dimName) {
     final Tree dimTree = new Tree();
-    ServiceFactory.getService().getMembers(dimName, GuidFactory.getGuid(), new AsyncCallback() {
+    ServiceFactory.getInstance().getMembers(dimName, GuidFactory.getGuid(), new AsyncCallback() {
       public void onSuccess(Object result) {
         StringTree memberTree = (StringTree) result;
         Label rootLabel = new Label(memberTree.getValue());
@@ -333,7 +333,7 @@ public class DimensionPanel extends FlexTable implements ConnectionListener {
   }
       
   public void getCubes() {
-    ServiceFactory.getService().getCubes(GuidFactory.getGuid(), new AsyncCallback() {
+    ServiceFactory.getInstance().getCubes(GuidFactory.getGuid(), new AsyncCallback() {
       public void onSuccess(Object result1) {
         if (result1 != null) {
           cubeListBox.clear();
@@ -342,7 +342,7 @@ public class DimensionPanel extends FlexTable implements ConnectionListener {
             cubeListBox.addItem(cubeNames[i]);
           }
         }
-        ServiceFactory.getService().setCube(cubeListBox.getItemText(cubeListBox.getSelectedIndex()), GuidFactory.getGuid(), new AsyncCallback() {
+        ServiceFactory.getInstance().setCube(cubeListBox.getItemText(cubeListBox.getSelectedIndex()), GuidFactory.getGuid(), new AsyncCallback() {
           public void onSuccess(Object result2) {
             populateDimensions();
           }         
