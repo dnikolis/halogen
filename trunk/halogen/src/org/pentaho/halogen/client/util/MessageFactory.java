@@ -27,7 +27,7 @@ import com.google.gwt.core.client.GWT;
  */
 public class MessageFactory {
   static Messages messages = null;
-  public static Messages getMessages() {
+  public static Messages getInstance() {
     if (messages == null) {
       messages = (Messages) GWT.create(Messages.class);
     }

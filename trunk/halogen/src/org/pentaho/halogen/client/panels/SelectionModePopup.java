@@ -64,11 +64,11 @@ public class SelectionModePopup extends PopupPanel {
   protected void init() {
     menuBar = new MenuBar(true);
     menuBar.setAutoOpen(true);
-    menuBar.addItem(new MenuItem(MessageFactory.getMessages().member(), new SelectionModeCommand(MEMBER)));
-    menuBar.addItem(new MenuItem(MessageFactory.getMessages().children(), new SelectionModeCommand(CHILDREN)));
-    menuBar.addItem(new MenuItem(MessageFactory.getMessages().include_children(), new SelectionModeCommand(INCLUDE_CHILDREN)));
-    menuBar.addItem(new MenuItem(MessageFactory.getMessages().siblings(), new SelectionModeCommand(SIBLINGS)));
-    menuBar.addItem(new MenuItem(MessageFactory.getMessages().clear_selections(), new SelectionModeClearCommand()));
+    menuBar.addItem(new MenuItem(MessageFactory.getInstance().member(), new SelectionModeCommand(MEMBER)));
+    menuBar.addItem(new MenuItem(MessageFactory.getInstance().children(), new SelectionModeCommand(CHILDREN)));
+    menuBar.addItem(new MenuItem(MessageFactory.getInstance().include_children(), new SelectionModeCommand(INCLUDE_CHILDREN)));
+    menuBar.addItem(new MenuItem(MessageFactory.getInstance().siblings(), new SelectionModeCommand(SIBLINGS)));
+    menuBar.addItem(new MenuItem(MessageFactory.getInstance().clear_selections(), new SelectionModeClearCommand()));
     
     this.setWidget(menuBar);
   }
@@ -119,9 +119,9 @@ public class SelectionModePopup extends PopupPanel {
     public void execute() {
       final MemberSelectionLabel targetLabel = (MemberSelectionLabel)getSource();
       String dimName = getDimensionName(targetLabel);
-      ServiceFactory.getService().createSelection(dimName, targetLabel.getFullPath(), new Integer(selectionMode), guid, new AsyncCallback() {
+      ServiceFactory.getInstance().createSelection(dimName, targetLabel.getFullPath(), new Integer(selectionMode), guid, new AsyncCallback() {
         public void onFailure(Throwable caught) {
-          Window.alert(MessageFactory.getMessages().no_selection_set(caught.getLocalizedMessage()));
+          Window.alert(MessageFactory.getInstance().no_selection_set(caught.getLocalizedMessage()));
         }
         public void onSuccess(Object result) {
           if (((Boolean)result).booleanValue()) {
@@ -145,9 +145,9 @@ public class SelectionModePopup extends PopupPanel {
     public void execute() {
       final MemberSelectionLabel targetLabel = (MemberSelectionLabel)getSource();
       String dimName = getDimensionName(targetLabel);
-      ServiceFactory.getService().clearSelection(dimName, targetLabel.getFullPath(), guid, new AsyncCallback() {
+      ServiceFactory.getInstance().clearSelection(dimName, targetLabel.getFullPath(), guid, new AsyncCallback() {
         public void onFailure(Throwable caught) {
-          Window.alert(MessageFactory.getMessages().no_selection_cleared(caught.getLocalizedMessage()));
+          Window.alert(MessageFactory.getInstance().no_selection_cleared(caught.getLocalizedMessage()));
         }
         public void onSuccess(Object result) {
           if (((Boolean)result).booleanValue()) {

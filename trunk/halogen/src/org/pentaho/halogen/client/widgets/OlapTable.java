@@ -17,14 +17,18 @@
 
 package org.pentaho.halogen.client.widgets;
 
+import java.util.Iterator;
+
 import org.pentaho.halogen.client.Messages;
 import org.pentaho.halogen.client.util.CellInfo;
+import org.pentaho.halogen.client.util.CellSpanInfo;
 import org.pentaho.halogen.client.util.OlapData;
+import org.pentaho.halogen.client.util.OlapUtils;
 
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.Widget;
 
 /**
  * @author wseyler
@@ -94,26 +98,17 @@ public class OlapTable extends FlexTable {
     }
     if (groupHeaders && showParentMembers) {  
       for (int row=0; row<headerData.length; row++) {
-        int columnSpan = 1;
-        int virtualColumn = 0;
-        for (int column=1; column<headerData[row].length; column++) {
-          if (headerData[row][column].getFormattedValue().equals(headerData[row][column-1].getFormattedValue())) {
-            columnSpan++;
-          } else {
-            Label label = new Label(headerData[row][column-1].getFormattedValue());
-            label.addStyleName(OLAP_COL_HEADER_LABEL);
-            setWidget(row, virtualColumn + olapData.getRowHeaders().getAcrossCount(), label);
-            cellFormatter.addStyleName(row, virtualColumn + olapData.getRowHeaders().getAcrossCount(), OLAP_COL_HEADER_CELL);
-            cellFormatter.setColSpan(row, virtualColumn + olapData.getRowHeaders().getAcrossCount(), columnSpan);
-            virtualColumn++;
-            columnSpan = 1;
-          }
-        }
-        Label label = new Label(headerData[row][headerData[row].length-1].getFormattedValue());
-        label.addStyleName(OLAP_COL_HEADER_LABEL);
-        setWidget(row, virtualColumn + olapData.getRowHeaders().getAcrossCount(), label);
-        cellFormatter.addStyleName(row, virtualColumn + olapData.getRowHeaders().getAcrossCount(), OLAP_COL_HEADER_CELL);
-        cellFormatter.setColSpan(row, virtualColumn + olapData.getRowHeaders().getAcrossCount(), columnSpan);
+      	int currentColumn = 0;
+      	Iterator iter = OlapUtils.getCellSpans(OlapUtils.extractRow(headerData, row)).iterator();
+      	while (iter.hasNext()) {
+      		CellSpanInfo spanInfo = (CellSpanInfo) iter.next();
+      		Label label = new Label(spanInfo.getInfo().getFormattedValue());
+      		label.addStyleName(OLAP_COL_HEADER_LABEL);
+      		setWidget(row, currentColumn + olapData.getRowHeaders().getAcrossCount(), label);
+      		cellFormatter.addStyleName(row, currentColumn + olapData.getRowHeaders().getAcrossCount(), OLAP_COL_HEADER_CELL);
+      		cellFormatter.setColSpan(row, currentColumn + olapData.getRowHeaders().getAcrossCount(), spanInfo.getSpan());
+      		currentColumn ++;
+      	}
       }
     } else {
       for (int row=0; row<headerData.length; row++) {
@@ -147,28 +142,20 @@ public class OlapTable extends FlexTable {
     	}
     }
     if (groupHeaders && showParentMembers) {
-      for (int column = 0; column<headerData[0].length; column++) {
-        int rowSpan = 1;
-        int virtualRow = 0;
-        for (int row=1; row<headerData.length; row++) {
-          if (headerData[row][column].getFormattedValue().equals(headerData[row-1][column].getFormattedValue())) {
-            rowSpan++;
-          } else {
-            Label label = new Label(headerData[row-1][column].getFormattedValue());
-            label.addStyleName(OLAP_ROW_HEADER_LABEL);
-            setWidget(columnHeadersHeight + virtualRow, column, label);
-            cellFormatter.addStyleName(columnHeadersHeight + virtualRow, column, OLAP_ROW_HEADER_CELL);
-            cellFormatter.setRowSpan(columnHeadersHeight + virtualRow, column, rowSpan);
-            virtualRow++;
-            rowSpan = 1;
-          }
-        }
-        Label label = new Label(headerData[headerData[0].length][column].getFormattedValue());
-        label.addStyleName(OLAP_ROW_HEADER_LABEL);
-        setWidget(columnHeadersHeight + virtualRow, column, label);
-        cellFormatter.addStyleName(columnHeadersHeight + virtualRow, column, OLAP_ROW_HEADER_CELL);
-        cellFormatter.setRowSpan(columnHeadersHeight + virtualRow, column, rowSpan);
-      }
+     	for (int column = 0; column < headerData[0].length; column++) {
+      	int currentRow = 0;
+      	Iterator iter = OlapUtils.getCellSpans(OlapUtils.extractColumn(headerData, column)).iterator();
+      	while (iter.hasNext()) {
+      		CellSpanInfo spanInfo = (CellSpanInfo) iter.next();
+      		Label label = new Label(spanInfo.getInfo().getFormattedValue());
+      		label.addStyleName(OLAP_ROW_HEADER_LABEL);
+      		int offsetColumn = getFirstUnusedColumnForRow(columnHeadersHeight + currentRow);
+      		setWidget(columnHeadersHeight + currentRow, offsetColumn, label);
+      		cellFormatter.addStyleName(columnHeadersHeight + currentRow, offsetColumn, OLAP_ROW_HEADER_CELL);
+      		cellFormatter.setRowSpan(columnHeadersHeight + currentRow, offsetColumn, spanInfo.getSpan());
+      		currentRow++;
+      	}
+    	}
     } else {
       for (int row=0; row<headerData.length; row++) {
       	for (int column=0; column<headerData[row].length; column++) {
@@ -195,7 +182,7 @@ public class OlapTable extends FlexTable {
 	        if (colorValueStr != null) {
 	          DOM.setElementAttribute(label.getElement(), "style", "background-color: "+cellInfo.getColorValue()+";");   //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 	        }
-	        setWidget(showParentMembers ? row + olapData.getColumnHeaders().getDownCount() : row + 1, showParentMembers ? column + olapData.getRowHeaders().getAcrossCount() : column + 1, label);
+	        setWidget(showParentMembers ? row + olapData.getColumnHeaders().getDownCount() : row + 1, showParentMembers ? getFirstUnusedColumnForRow(row + olapData.getColumnHeaders().getDownCount())/*column + olapData.getRowHeaders().getAcrossCount() */: column + 1, label);
     		}
     	}
     }  	
@@ -224,5 +211,22 @@ public class OlapTable extends FlexTable {
 
   public void setGroupHeaders(boolean groupHeaders) {
     this.groupHeaders = groupHeaders;
+  }
+  
+  public int getFirstUnusedColumnForRow(int row) {
+  	int column = 0;
+  	
+  	try {
+  		while (true) {
+	  		Widget widget = getWidget(row, column);
+	  		String text = getText(row, column);
+	  		if ((text == null || text.length() < 1) && widget == null) {
+	  			return column;
+	  		}
+	  		column ++;
+  		}
+  	} catch (IndexOutOfBoundsException e) {
+  		return column;
+  	}
   }
 }

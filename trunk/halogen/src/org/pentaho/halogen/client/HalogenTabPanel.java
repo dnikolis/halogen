@@ -47,9 +47,9 @@ public class HalogenTabPanel extends TabPanel {
     connectionPanel.addConnectionListener(dimensionPanel);
     connectionPanel.addConnectionListener(reportPanel);
     
-    this.add(connectionPanel, MessageFactory.getMessages().connection());
-    this.add(dimensionPanel, MessageFactory.getMessages().selections());
-    this.add(reportPanel, MessageFactory.getMessages().report());
+    this.add(connectionPanel, MessageFactory.getInstance().connection());
+    this.add(dimensionPanel, MessageFactory.getInstance().selections());
+    this.add(reportPanel, MessageFactory.getInstance().report());
     
     selectTab(0);
     this.addTabListener(connectionPanel);
