@@ -1,0 +1,174 @@
+<!--
+  == $Id: build.xml 88 2008-04-13 07:06:03Z jhyde $
+  -->
+<project name="halogen" default="compile">
+  <property environment="env"/>
+  <property file="${project.location}/build.properties"/>
+  <property file="${project.location}/test.properties"/>
+  <property name="project.build.debug" value="on"/>
+  <property name="name" value="halogen"/>
+  <property name="version" value="0.1.31"/>
+  <property name="dist.name" value="${name}-${version}" />
+
+  <!-- Operating system name, used to build GWT paths. Values are 'windows',
+       'linux', 'mac'. -->
+  <condition property="os" value="mac">
+    <os family="mac"/>
+  </condition>
+  <condition property="os" value="windows">
+    <os family="windows"/>
+  </condition>
+  <condition property="os" value="linux">
+    <os name="linux"/>
+  </condition>
+
+  <!-- properties related to paths -->
+  <property name="project.location" location="."/>
+  <property name="lib.location" location="${project.location}/lib"/>
+  <property name="src.dir" value="src"/>
+  <property name="tp-lib.dir" value="lib/third-party"/>
+  <property name="gwt.location" location="${project.location}/../gwt-${os}-1.4.61" />
+  <property name="lib.dir" value="lib"/>
+  <property name="bin.dir" value="bin"/>
+  <property name="www.dir" value="www"/>
+  <property name="docs.dir" value="docs"/>
+  <property name="dist.dir" value="dist"/>
+  <property name="javadoc.dir" value="docs/api"/>
+
+  <property name="dist.src.file" value="${dist.dir}/${name}-${version}.jar"/>
+
+  <condition property="jvmargs" value="-XstartOnFirstThread" else="">
+    <equals arg1="${os}" arg2="mac" />
+  </condition>
+
+  <path id="project.classpath">
+    <pathelement location="${bin.dir}"/>
+    <pathelement location="${src.dir}"/>
+    <pathelement path="${env.CLASSPATH}"/>
+    <pathelement location="${tp-lib.dir}/olap4j.jar"/>
+    <pathelement location="${tp-lib.dir}/jfreechart-1.0.9.jar"/>
+    <pathelement location="${tp-lib.dir}/jcommon-1.0.12.jar"/>
+
+    <pathelement location="${gwt.location}/gwt-user.jar"/>
+    <pathelement location="${gwt.location}/gwt-dev-${os}.jar"/>
+    <pathelement location="${tp-lib.dir}/gwt-dnd-2.0.7.jar"/>
+
+    <!-- The following path elements are needed for mondrian. You can remove
+         them if you are not using the mondrian driver. -->
+    <pathelement location="${tp-lib.dir}/mondrian.jar"/>
+    <pathelement location="${tp-lib.dir}/commons-collections.jar"/>
+    <pathelement location="${tp-lib.dir}/commons-dbcp.jar"/>
+    <pathelement location="${tp-lib.dir}/commons-logging.jar"/>
+    <pathelement location="${tp-lib.dir}/commons-math-1.0.jar"/>
+    <pathelement location="${tp-lib.dir}/commons-pool.jar"/>
+    <pathelement location="${tp-lib.dir}/commons-vfs.jar"/>
+    <pathelement location="${tp-lib.dir}/eigenbase-properties.jar"/>
+    <pathelement location="${tp-lib.dir}/eigenbase-resgen.jar"/>
+    <pathelement location="${tp-lib.dir}/eigenbase-xom.jar"/>
+    <pathelement location="${tp-lib.dir}/javacup.jar"/>
+    <pathelement location="${tp-lib.dir}/xercesImpl.jar"/>
+    <pathelement location="${tp-lib.dir}/log4j-1.2.9.jar"/>
+
+    <!-- Add your JDBC driver jars here -->
+    <!--
+    <pathelement location="${tp-lib.dir}/mysql-connector-java-5.0.7-bin.jar"/>
+    -->
+  </path>
+
+  <target name="all" depends="clean,compile"/>
+
+  <target name="clean">
+    <delete includeEmptyDirs="true" quiet="true">
+      <fileset dir="${bin.dir}" includes="**/*.class,**/*.properties"/>
+      <fileset dir="." includes="VERSION.txt"/>
+      <fileset dir="${javadoc.dir}" includes="**"/>
+    </delete>
+  </target>
+
+  <target name="prepare">
+    <mkdir dir="${bin.dir}"/>
+    <mkdir dir="${javadoc.dir}"/>
+  </target>
+
+  <target name="compile" depends="prepare,version"
+      description="Compiles java code and runs GWT to generate JavaScript.">
+    <java
+        classpathref="project.classpath"
+        classname="com.google.gwt.dev.GWTCompiler"
+        fork="true">
+      <jvmarg line="${jvmargs}" />
+      <arg line="-out ${www.dir} org.pentaho.halogen.Halogen" />
+    </java>
+
+    <javac
+        srcdir="${src.dir}"
+        destdir="${bin.dir}"
+        debug="${project.build.debug}"
+        classpathref="project.classpath">
+      <include name="**/*.java"/>
+    </javac>
+  </target>
+
+  <target name="version">
+    <echo
+      message="${name} ${version}${line.separator}"
+      file="VERSION.txt" />
+  </target>
+
+  <target name="shell" description="Launches Halogen in GWT's dummy browser">
+      <java
+          classpathref="project.classpath"
+          classname="com.google.gwt.dev.GWTShell"
+          fork="true">
+        <jvmarg line="${jvmargs}" />
+        <arg line="-out ${www.dir} org.pentaho.halogen.Halogen/Halogen.html" />
+      </java>
+  </target>
+
+  <target name="srczip" depends="version">
+    <mkdir dir="${dist.dir}" />
+    <delete file="${dist.src.file}"/>
+    <zip
+        zipfile="${dist.src.file}"
+        update="true">
+      <zipfileset
+          dir="."
+          prefix="${dist.name}"
+          includes="
+${src.dir}/**/*.java,
+docs/**,
+build.xml,
+VERSION.txt"
+          excludes="
+${javadoc.dir}/**,
+**/_vti*/*,
+**/.svn/*,
+**/*~,
+**/junit-results/**" />
+    </zip>
+  </target>
+
+  <target name="javadoc">
+    <mkdir dir="${javadoc.dir}" />
+    <!-- remove stray package.html files under classes to avoid 'multiple
+         sources of package comments' errors -->
+    <delete includeEmptyDirs="false" quiet="true">
+      <fileset dir="${bin.dir}" includes="**/package.html"/>
+    </delete>
+    <delete quiet="true" file="${javadoc.dir}/index.html"/>
+    <javadoc sourcepath="${src.dir}"
+        classpathref="project.classpath"
+        destdir="${javadoc.dir}"
+        packagenames="org.pentaho.halogen.*"
+        author="true"
+        source="1.5"
+        access="public"
+        Windowtitle="${name}, version ${version}"
+        additionalparam="-linksource"
+      >
+      <link href="http://java.sun.com/javase/6/docs/api/"/>
+    </javadoc>
+  </target>
+</project>
+
+<!-- End build.xml -->
