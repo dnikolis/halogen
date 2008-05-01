@@ -24,6 +24,7 @@ import org.pentaho.halogen.client.util.OlapData;
 import org.pentaho.halogen.client.util.ServiceFactory;
 import org.pentaho.halogen.client.widgets.OlapTable;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -137,7 +138,8 @@ public class ReportPanel extends DockPanel implements ConnectionListener {
           }
 
           public void onSuccess(Object result2) {
-            chart.setUrl(result2.toString());
+            String url = GWT.getModuleBaseURL() + "ChartServlet?guid=" + (String)result2;
+            chart.setUrl(url);
           }
           
         });
@@ -162,7 +164,8 @@ public class ReportPanel extends DockPanel implements ConnectionListener {
           }
 
           public void onSuccess(Object result2) {
-            chart.setUrl(result2.toString());
+            String url = GWT.getModuleBaseURL() + "ChartServlet?guid=" + (String)result2;
+            chart.setUrl(url);
           }
           
         });
