@@ -195,7 +195,8 @@ public class ReportPanel extends DockPanel implements ConnectionListener {
           }
 
           public void onSuccess(Object result2) {
-            chart.setUrl(result2.toString());
+            String url = GWT.getModuleBaseURL() + "ChartServlet?guid=" + (String)result2;
+            chart.setUrl(url);
           }
           
         });
