@@ -14,11 +14,8 @@
  * @author wseyler
  */
 
-
 package org.pentaho.halogen.server.services;
 
-import java.io.File;
-import java.io.IOException;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.text.DateFormat;
@@ -28,13 +25,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
-
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartUtilities;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.data.category.CategoryDataset;
 import org.olap4j.Axis;
 import org.olap4j.CellSet;
 import org.olap4j.OlapConnection;
@@ -48,6 +38,7 @@ import org.olap4j.query.Query;
 import org.olap4j.query.QueryDimension;
 import org.olap4j.query.Selection;
 import org.pentaho.halogen.client.services.Olap4JService;
+import org.pentaho.halogen.client.util.GuidFactory;
 import org.pentaho.halogen.client.util.OlapData;
 import org.pentaho.halogen.client.util.StringTree;
 
@@ -61,18 +52,15 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JService {
 
   protected static final Double ZERO_THRESHOLD = 1.2346E-8;
-  protected static String chartDirectory;
+
   protected static HashMap<String, OlapConnection> connectionCache = new HashMap<String, OlapConnection>();
+
   protected static HashMap<OlapConnection, Cube> cubeCache = new HashMap<OlapConnection, Cube>();
+
   protected static HashMap<Cube, Query> queryCache = new HashMap<Cube, Query>();
 
   public Olap4JServiceImpl() {
     super();
-    chartDirectory = System.getProperty("user.dir") + File.separator + "www" + File.separator + "org.pentaho.halogen.Halogen" + File.separator + "charts";
-    File chartDirectoryFile = new File(chartDirectory);
-    if (!chartDirectoryFile.exists()) {
-      chartDirectoryFile.mkdirs();
-    }
   }
 
   /* (non-Javadoc)
@@ -81,7 +69,7 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
   public String getServerInfo() {
     return DateFormat.getInstance().format(new Date());
   }
-  
+
   public Boolean connect(String connectStr, String guid) {
     OlapConnection connection;
     try {
@@ -103,7 +91,7 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
       return false;
     }
   }
-  
+
   public Boolean disconnect(String guid) {
     OlapConnection connection = connectionCache.get(guid);
     if (connection != null) {
@@ -116,7 +104,7 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
     queryCache.remove(cubeCache.remove(connectionCache.remove(guid)));
     return true;
   }
-  
+
   public String[] getCubes(String guid) {
     OlapConnection connection = connectionCache.get(guid);
     if (connection == null) {
@@ -125,7 +113,7 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
     try {
       NamedList<Cube> cubes = connection.getSchema().getCubes();
       String[] cubeNames = new String[cubes.size()];
-      for (int i=0; i<cubes.size(); i++) {
+      for (int i = 0; i < cubes.size(); i++) {
         Cube cube = cubes.get(i);
         cubeNames[i] = cube.getName();
       }
@@ -135,7 +123,7 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
     }
     return null;
   }
-  
+
   /* (non-Javadoc)
    * @see org.pentaho.halogen.client.services.Olap4JService#setCube(java.lang.String)
    */
@@ -144,12 +132,12 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
     if (connection == null) {
       return new Boolean(false);
     }
-    
+
     try {
       NamedList<Cube> cubes = connection.getSchema().getCubes();
       Cube cube = null;
       Iterator<Cube> iter = cubes.iterator();
-      while(iter.hasNext() && cube == null) {
+      while (iter.hasNext() && cube == null) {
         Cube testCube = iter.next();
         if (cubeName.equals(testCube.getName())) {
           cube = testCube;
@@ -165,9 +153,9 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
       return new Boolean(false);
     }
   }
-  
+
   public String[] getDimensions(String axis, String guid) {
-    
+
     Cube cube;
     try {
       cube = getCube4Guid(guid);
@@ -187,20 +175,20 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
         return new String[0];
       }
     }
-    
+
     Axis targetAxis = null;
     if (!axis.equalsIgnoreCase("none")) { //$NON-NLS-1$
       targetAxis = Axis.valueOf(axis);
     }
-    
-    List<QueryDimension> dimList = query.getAxes().get(targetAxis).getDimensions();  
+
+    List<QueryDimension> dimList = query.getAxes().get(targetAxis).getDimensions();
     String[] dimNames = new String[dimList.size()];
-    for (int i=0; i<dimList.size(); i++) {
+    for (int i = 0; i < dimList.size(); i++) {
       dimNames[i] = dimList.get(i).getName();
     }
     return dimNames;
   }
-  
+
   public Boolean moveDimension(String axisName, String DimName, String guid) {
     Cube cube;
     try {
@@ -210,7 +198,7 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
       e1.printStackTrace();
       return new Boolean(false);
     }
-    
+
     Query query = queryCache.get(cube);
     if (query == null) {
       try {
@@ -225,7 +213,7 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
     if (!axisName.equalsIgnoreCase("none")) { //$NON-NLS-1$
       targetAxis = Axis.valueOf(axisName);
     }
-    
+
     query.getAxes().get(targetAxis).getDimensions().add(query.getDimension(DimName));
 
     return new Boolean(true);
@@ -240,13 +228,13 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
       // TODO Auto-generated catch block
       e1.printStackTrace();
     }
-    
+
     List<String> uniqueNameList = new ArrayList<String>();
     NamedList<Level> levels = query.getDimension(dimName).getDimension().getHierarchies().get(dimName).getLevels();
-    for(Level level : levels) {
+    for (Level level : levels) {
       try {
         List<Member> levelMembers = level.getMembers();
-        for(Member member : levelMembers) {
+        for (Member member : levelMembers) {
           uniqueNameList.add(member.getUniqueName());
         }
       } catch (OlapException e) {
@@ -254,17 +242,17 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
       }
     }
     StringTree result = new StringTree(dimName, null);
-    for(int i=1; i<uniqueNameList.size(); i++) {
+    for (int i = 0; i < uniqueNameList.size(); i++) {
       String[] memberNames = uniqueNameList.get(i).split("\\."); //$NON-NLS-1$
-      for (int j=0; j<memberNames.length; j++) {  // Trim off the brackets
+      for (int j = 0; j < memberNames.length; j++) { // Trim off the brackets
         memberNames[j] = memberNames[j].substring(1, memberNames[j].length() - 1);
       }
       result = OlapUtil.parseMembers(memberNames, result);
     }
-    
+
     return result;
   }
-    
+
   public Boolean validateQuery(String guid) {
     try {
       return new Boolean(getQuery4Guid(guid).validate());
@@ -276,7 +264,7 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
       return new Boolean(false);
     }
   }
-  
+
   public OlapData executeQuery(String guid) {
     CellSet results = null;
     try {
@@ -288,7 +276,7 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
     }
     return OlapUtil.cellSet2OlapData(results);
   }
-  
+
   public OlapData executeMDXStr(String mdx, String guid) {
     OlapConnection connection = connectionCache.get(guid);
 
@@ -301,8 +289,8 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
       return null;
     }
   }
-  
-  public Boolean createSelection(String dimName, String[] memberNames, Integer selectionType, String guid) {    
+
+  public Boolean createSelection(String dimName, String[] memberNames, Integer selectionType, String guid) {
     Cube cube = null;
     try {
       cube = getCube4Guid(guid);
@@ -310,7 +298,7 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
       e1.printStackTrace();
       return new Boolean(false);
     }
-    
+
     Query query = queryCache.get(cube);
     if (query == null) {
       return new Boolean(false);
@@ -355,11 +343,11 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
     try {
       query = getQuery4Guid(guid);
     } catch (ObjectNotInCacheException e) {
-      e.getLocalizedMessage();  // We don't need a stack trace here since query.swapAxes() will blow
+      e.getLocalizedMessage(); // We don't need a stack trace here since query.swapAxes() will blow
     }
-    
+
     query.swapAxes();
-    
+
     return executeQuery(guid);
   }
 
@@ -367,39 +355,26 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
    * @see org.pentaho.halogen.client.services.Olap4JService#createChart(org.pentaho.halogen.client.util.OlapData)
    */
   public String createChart(OlapData olapData) {
-    CategoryDataset categoryDataset = OlapUtil.createCategoryDataset(olapData);
-    String categoryAxisName = olapData.getRowHeaders().getCell(0, 0).getFormattedValue();
-    String valueAxisName = olapData.getColumnHeaders().getCell(0, 0).getFormattedValue();
-    JFreeChart chart = ChartFactory.createBarChart("Olap Chart", categoryAxisName, valueAxisName, categoryDataset, PlotOrientation.VERTICAL, true, true, false);
-    File chartFile = null;
-    try {
-      chartFile = File.createTempFile("chart",".png", new File(chartDirectory));
-      ChartUtilities.saveChartAsPNG(chartFile, chart, 400, 400);
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-    HttpServletRequest req = getThreadLocalRequest();
-    StringBuffer buffer = new StringBuffer(req.getScheme()).append("://").append(req.getServerName()).append(":").append(req.getServerPort()).append("/org.pentaho.halogen.Halogen").append("/charts/").append(chartFile.getName());
-    System.out.println(buffer.toString());
-    return buffer.toString();
+    String olapDataGuid = "olapData"+GuidFactory.getGuid();
+    getThreadLocalRequest().getSession().setAttribute(olapDataGuid, olapData);
+    return olapDataGuid;
   }
-  
+
   // Private utility methods
   private Cube getCube4Guid(String guid) throws ObjectNotInCacheException {
     OlapConnection connection = connectionCache.get(guid);
     if (connection == null) {
       throw new ObjectNotInCacheException(Messages.getString("Olap4JServiceImpl.OBJECT_NOT_IN_CACHE") + OlapConnection.class.toString() + Messages.getString("Olap4JServiceImpl.NO_KEY_FOUND") + guid); //$NON-NLS-1$ //$NON-NLS-2$
     }
-    
+
     Cube cube = cubeCache.get(connection);
     if (cube == null) {
       throw new ObjectNotInCacheException(Messages.getString("Olap4JServiceImpl.OBJECT_NOT_IN_CACHE") + Cube.class.toString() + Messages.getString("Olap4JServiceImpl.NO_KEY_FOUND") + connection.toString()); //$NON-NLS-1$ //$NON-NLS-2$
     }
-    
+
     return cube;
   }
-  
+
   private Query getQuery4Guid(String guid) throws ObjectNotInCacheException {
     Cube cube;
     try {
@@ -407,15 +382,13 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
     } catch (ObjectNotInCacheException e) {
       throw e;
     }
-    
+
     Query query = queryCache.get(cube);
     if (query == null) {
       throw new ObjectNotInCacheException(Messages.getString("Olap4JServiceImpl.OBJECT_NOT_IN_CACHE") + Query.class.toString() + Messages.getString("Olap4JServiceImpl.NO_KEY_FOUND") + cube.toString()); //$NON-NLS-1$ //$NON-NLS-2$
     }
-    
+
     return query;
   }
 
-
 }
-
