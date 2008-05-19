@@ -40,10 +40,13 @@ public class OlapTable extends FlexTable {
   private static final String OLAP_ROW_HEADER_CELL = "olap-row-header-cell"; //$NON-NLS-1$
   private static final String OLAP_COL_HEADER_CELL = "olap-col-header-cell"; //$NON-NLS-1$
   private static final String OLAP_COL_HEADER_LABEL = "olap-col-header-label"; //$NON-NLS-1$
+  private static final char USED = 'u';
+  private static final char SPANNED = 's';
+  private static final char FREE = 'f';
   
   OlapData olapData = null;
   boolean showParentMembers = true;
-  boolean groupHeaders = false;
+  boolean groupHeaders = true;
   Messages messages = null;
   
   /**
@@ -79,13 +82,21 @@ public class OlapTable extends FlexTable {
     }
     
     if (olapData != null) {
-      createColumnHeaders();
+      removeAllRows();
+    	createColumnHeaders();
       createRowHeaders();
       populateData();
     }
     
   }
 
+  protected void removeAllRows() {
+    final int rowCount = getRowCount();
+    for (int i=rowCount-1; i >= 0; i--) {
+      removeRow(i);
+    }
+  }
+  
   protected void createColumnHeaders() {
     FlexCellFormatter cellFormatter = getFlexCellFormatter();
     
@@ -131,6 +142,7 @@ public class OlapTable extends FlexTable {
   	
   	int rowHeadersHeight = olapData.getRowHeaders().getDownCount();
   	int rowHeadersWidth = olapData.getRowHeaders().getAcrossCount();
+  	int offset = 0;
   	
   	CellInfo[][] headerData;
     if (showParentMembers) {
@@ -141,7 +153,9 @@ public class OlapTable extends FlexTable {
     		headerData[row][0] = olapData.getRowHeaders().getCell(row, rowHeadersWidth - 1);
     	}
     }
-    if (groupHeaders && showParentMembers) {
+    char matrix[][] = createMatrix(headerData.length + columnHeadersHeight, headerData[0].length);
+    
+    if (!groupHeaders && showParentMembers) {
      	for (int column = 0; column < headerData[0].length; column++) {
       	int currentRow = 0;
       	Iterator iter = OlapUtils.getCellSpans(OlapUtils.extractColumn(headerData, column)).iterator();
@@ -157,20 +171,61 @@ public class OlapTable extends FlexTable {
       	}
     	}
     } else {
-      for (int row=0; row<headerData.length; row++) {
-      	for (int column=0; column<headerData[row].length; column++) {
-      		CellInfo cellInfo = headerData[row][column];
-      		if (cellInfo != null) {
-      			Label label = new Label(cellInfo.getFormattedValue());
-  	        label.addStyleName(OLAP_ROW_HEADER_LABEL);
-  	        cellFormatter.addStyleName(showParentMembers ? columnHeadersHeight + row: row + 1, column, OLAP_ROW_HEADER_CELL);
-  	        setWidget(showParentMembers ? columnHeadersHeight + row : row + 1, column, label);
-      		}
-      	}
-      }
+    	for (int coluna=0; coluna < headerData[0].length; coluna++) { // colunas
+
+    		CellInfo actualColumn[] = OlapUtils.extractColumn(headerData, coluna);
+    		if (actualColumn == null || actualColumn.length == 0)
+				continue;			    		
+    		Iterator iter = OlapUtils.getCellSpans(actualColumn).iterator();
+    		int actualRow = 0; // the current row (considering just the headerData, excluding column headers)
+    		while (iter.hasNext())
+    		{
+    			if (showParentMembers == false)
+    				actualRow--;
+    			CellSpanInfo spanInfo = (CellSpanInfo) iter.next();
+    			//Prepares the label
+    			Label label = new Label(spanInfo.getInfo().getFormattedValue());
+          		label.addStyleName(OLAP_ROW_HEADER_LABEL);
+
+          		int newColumn = offset;
+          		matrix[columnHeadersHeight + actualRow][coluna] = USED;
+          		spanMatrixRow(matrix, columnHeadersHeight + actualRow, newColumn, spanInfo.getSpan());
+          		printMatrix(matrix);
+          		
+          		cellFormatter.setRowSpan(columnHeadersHeight + actualRow , 
+          				newColumn - getSpanInRow(matrix, columnHeadersHeight +actualRow), spanInfo.getSpan());
+          		cellFormatter.addStyleName(columnHeadersHeight + actualRow , 
+          				newColumn - getSpanInRow(matrix, columnHeadersHeight +actualRow), OLAP_ROW_HEADER_CELL);
+          		setWidget (columnHeadersHeight + actualRow , 
+          				newColumn - getSpanInRow(matrix, columnHeadersHeight + actualRow), label);
+          		
+          		actualRow+=spanInfo.getSpan();
+          		
+          		if (showParentMembers == false)
+    				actualRow++;
+          		
+    		}
+    		offset++;
+    	}
     }
   }
-  
+  private void printTable()
+  {
+	  int j = 0;
+	  System.out.println("==============");
+	  for (int i = 0; i < getRowCount(); i++)
+	  {
+		for (j = 0; j < getCellCount(i); j++)
+		{
+			if (isCellPresent (i,j))
+				System.out.print("P ");
+			else
+				System.out.print("n ");
+		}
+		System.out.println((j));
+	  }
+	  System.out.println("==============");
+  }
   protected void populateData() {
     for (int row=0; row<olapData.getCellData().getDownCount(); row++) {
     	for (int column=0; column<olapData.getCellData().getAcrossCount(); column++) {
@@ -208,11 +263,22 @@ public class OlapTable extends FlexTable {
     return groupHeaders;
   }
 
-
   public void setGroupHeaders(boolean groupHeaders) {
-    this.groupHeaders = groupHeaders;
+    setGroupHeaders(groupHeaders, true);
   }
   
+  /**
+   * @param groupHeaders2
+   * @param b
+   */
+  public void setGroupHeaders(boolean groupHeaders, boolean refresh) {
+    this.groupHeaders = groupHeaders;
+    if (refresh) {
+      refresh();
+    }
+  }
+
+
   public int getFirstUnusedColumnForRow(int row) {
   	int column = 0;
   	
@@ -228,5 +294,73 @@ public class OlapTable extends FlexTable {
   	} catch (IndexOutOfBoundsException e) {
   		return column;
   	}
+  }
+  
+  protected char[][] createMatrix (int row, int column)
+  {
+	  char m[][] = new char[row][column];
+	  for (int i = 0; i < m.length; i++)
+		  for (int j = 0; j < m[0].length; j++)
+			  m[i][j] = FREE;
+	  
+	  return m;
+  }
+  
+  /*
+   * There's no clone() method in GWT, so it's done by hand.
+   */
+  protected void copyMatrix( char source[][], char destination[][])
+  {
+	  if (source.length > destination.length |
+		  source[0].length > destination[0].length)
+	  {
+		  throw new IndexOutOfBoundsException 
+		  ("The destination[" + destination.length + "][" + destination[0].length +"]" +
+				 "is smaller than source[" + source.length + "][" + source[0].length +"]");
+	  }
+
+	  for (int i = 0; i < source.length; i++)
+		  for (int j = 0; j < source[0].length; j++)
+			  destination[i][j]=source[i][j];
+		  
+  
+  }
+  
+  protected void spanMatrixRow( char matrix[][], int row, int column, int span)
+  {
+	  for (int i = 1; i < span; i++)
+		  matrix[row  + i][column] = SPANNED;
+  }
+
+  protected void printMatrix (char m[][])
+  {
+	  for (int i = 0; i < m.length; i++)
+	  {
+		  for (int j = 0; j < m[0].length; j++)
+			  System.out.print( " [" + i + "][" + j +"]=" + m[i][j]);
+		  
+		  System.out.println();
+	  }
+	  
+  }
+  
+  protected int getSpanInRow(char[][] matrix, int row)
+  {
+	  int result = 0;
+	  for (int i = 0; i < matrix[row].length; i++)
+		  if (matrix[row][i] == SPANNED)
+			  result++;
+	  
+	  return result;
+  }
+  
+  protected int getSpanInColumn(char[][] matrix, int column)
+  {
+	  int result = 0;
+	  for (int i = 0; i < matrix.length; i++)
+		  if (matrix[i][column] == SPANNED)
+			  result++;
+	  
+	  return result;
   }
 }

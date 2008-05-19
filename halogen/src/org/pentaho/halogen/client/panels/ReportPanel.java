@@ -49,6 +49,7 @@ public class ReportPanel extends DockPanel implements ConnectionListener {
   Button executeQueryBtn;
   Button swapAxisBtn;
   CheckBox toggleParentMembers;
+  CheckBox toggleGroupHeaders;
   OlapTable olapTable;
   Image chart;
   FlexTable content;
@@ -122,8 +123,22 @@ public class ReportPanel extends DockPanel implements ConnectionListener {
       }      
     });
     content.setWidget(3, 3, toggleParentMembers);
+    
+    // Create toggle for group headers
+    toggleGroupHeaders = new CheckBox("Group Headers");
+    toggleGroupHeaders.setChecked(olapTable.isGroupHeaders());
+    toggleGroupHeaders.addClickListener(new ClickListener() {
+        public void onClick(Widget sender) {
+        boolean checked = ((CheckBox)sender).isChecked();
+        olapTable.setGroupHeaders(checked);
+      }
+    });
+    content.setWidget(3, 4, toggleGroupHeaders);
+    
     this.add(content, DockPanel.CENTER);
     this.add(new ReportMenuBar(), DockPanel.NORTH);
+    
+    
   }
   
   public void doExecuteMDX() {
