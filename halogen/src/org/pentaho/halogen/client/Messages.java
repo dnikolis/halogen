@@ -3,7 +3,7 @@ package org.pentaho.halogen.client;
 
 /**
  * Interface to represent the messages contained in resource  bundle:
- * 	/Users/wseyler/Documents/workspace-trunk/halogen/src/org/pentaho/halogen/client/Messages.properties'.
+ * 	/Users/wseyler/Documents/workspace/halogen/src/org/pentaho/halogen/client/Messages.properties'.
  */
 public interface Messages extends com.google.gwt.i18n.client.Messages {
   
@@ -72,6 +72,14 @@ public interface Messages extends com.google.gwt.i18n.client.Messages {
   String member();
 
   /**
+   * Translated "Hide Parents".
+   * 
+   * @return translated "Hide Parents"
+   * @gwt.key hide_parents
+   */
+  String hide_parents();
+
+  /**
    * Translated "Selection could not be cleared: {0}".
    * 
    * @return translated "Selection could not be cleared: {0}"
@@ -94,6 +102,22 @@ public interface Messages extends com.google.gwt.i18n.client.Messages {
    * @gwt.key clear_selections
    */
   String clear_selections();
+
+  /**
+   * Translated "Group Headers".
+   * 
+   * @return translated "Group Headers"
+   * @gwt.key group_headers
+   */
+  String group_headers();
+
+  /**
+   * Translated "Show Parents".
+   * 
+   * @return translated "Show Parents"
+   * @gwt.key show_parents
+   */
+  String show_parents();
 
   /**
    * Translated "Execute Query Model".
@@ -224,12 +248,12 @@ public interface Messages extends com.google.gwt.i18n.client.Messages {
   String null_value();
 
   /**
-   * Translated "Show Parents".
+   * Translated "Ungroup Headers".
    * 
-   * @return translated "Show Parents"
-   * @gwt.key toggle_parents
+   * @return translated "Ungroup Headers"
+   * @gwt.key ungroup_headers
    */
-  String toggle_parents();
+  String ungroup_headers();
 
   /**
    * Translated "Connection could not be established: {0}".

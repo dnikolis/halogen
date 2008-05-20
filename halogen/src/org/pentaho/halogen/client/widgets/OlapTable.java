@@ -77,23 +77,19 @@ public class OlapTable extends FlexTable {
   }
   
   public void refresh() {
-    while (this.getRowCount() > 0) {
-      this.removeRow(0);
-    }
-    
+    removeAllRows();
+
     if (olapData != null) {
       removeAllRows();
     	createColumnHeaders();
       createRowHeaders();
       populateData();
-    }
-    
+    }   
   }
 
   protected void removeAllRows() {
-    final int rowCount = getRowCount();
-    for (int i=rowCount-1; i >= 0; i--) {
-      removeRow(i);
+    while (this.getRowCount() > 0) {
+      this.removeRow(0);
     }
   }
   
@@ -209,6 +205,8 @@ public class OlapTable extends FlexTable {
     	}
     }
   }
+  
+  /*
   private void printTable()
   {
 	  int j = 0;
@@ -226,6 +224,8 @@ public class OlapTable extends FlexTable {
 	  }
 	  System.out.println("==============");
   }
+  */
+  
   protected void populateData() {
     for (int row=0; row<olapData.getCellData().getDownCount(); row++) {
     	for (int column=0; column<olapData.getCellData().getAcrossCount(); column++) {

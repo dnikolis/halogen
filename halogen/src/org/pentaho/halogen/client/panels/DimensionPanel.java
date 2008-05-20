@@ -35,6 +35,7 @@ import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.Tree;
 import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.Widget;
@@ -61,6 +62,8 @@ public class DimensionPanel extends FlexTable implements ConnectionListener {
   FlexTable rowDimensions;
   FlexTable colDimensions;
   FlexTable filterDimensions;
+  TextArea mdxText;
+  
   SelectionModePopup selectionModePopup;
   
   ClickListener memberClickListener;
@@ -201,6 +204,24 @@ public class DimensionPanel extends FlexTable implements ConnectionListener {
     });
     this.setWidget(3, 3, moveToFilterButton);
     moveToFilterButton.setEnabled(false);
+    
+    this.setText(4, 0, MessageFactory.getInstance().mdx_query());
+    mdxText = new TextArea();
+    mdxText.setWidth("300px"); //$NON-NLS-1$
+    mdxText.setHeight("100px"); //$NON-NLS-1$
+//    mdxText.setText("SELECT {[Measures].[Unit Sales], [Measures].[Store Sales]} ON COLUMNS, " +
+//                    "CrossJoin( " +
+//                      "{[Gender].Members}, " +
+//                      "{[Product].[Food], [Product].[Drink]}) ON ROWS " +
+//                    "FROM [Sales]");
+    mdxText.setText("WITH MEMBER [Measures].[Profit] AS " + //$NON-NLS-1$
+                    "'([Measures].[Store Sales] - [Measures].[Store Cost])', " + //$NON-NLS-1$
+                    "FORMAT_STRING = Iif([Measures].[Profit] < 100000, '|#|style=green', '|#|style=red')" + //$NON-NLS-1$
+                    "SELECT {[Measures].[Store Sales], [Measures].[Profit]} ON COLUMNS, " + //$NON-NLS-1$
+                    "{[Product].CurrentMember.Children} ON ROWS " + //$NON-NLS-1$
+                    "FROM [Sales]" ); //$NON-NLS-1$
+    this.setWidget(5, 0, mdxText);
+    this.getFlexCellFormatter().setColSpan(5, 0, 2);
   }
 
   public void populateDimensions() {
@@ -374,4 +395,7 @@ public class DimensionPanel extends FlexTable implements ConnectionListener {
     getCubes();
   }
   
+  public String getMDXQueryText() {
+  	return mdxText.getText();
+  }
 }

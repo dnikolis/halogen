@@ -29,7 +29,8 @@ import com.google.gwt.user.client.ui.TabPanel;
  *
  */
 public class HalogenTabPanel extends TabPanel {
-  
+  DimensionPanel dimensionPanel;
+
   public HalogenTabPanel() {
     super();
     
@@ -40,7 +41,7 @@ public class HalogenTabPanel extends TabPanel {
    * 
    */
   private void init() {
-    DimensionPanel dimensionPanel = new DimensionPanel();
+    dimensionPanel = new DimensionPanel();
     ConnectionPanel connectionPanel = new ConnectionPanel();
     ReportPanel reportPanel = new ReportPanel();
 
@@ -54,5 +55,9 @@ public class HalogenTabPanel extends TabPanel {
     selectTab(0);
     this.addTabListener(connectionPanel);
   }
+
+	public DimensionPanel getDimensionPanel() {
+		return dimensionPanel;
+	}
 
 }
