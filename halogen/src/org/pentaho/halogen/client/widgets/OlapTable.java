@@ -78,13 +78,12 @@ public class OlapTable extends FlexTable {
   
   public void refresh() {
     removeAllRows();
-    
+
     if (olapData != null) {
     	createColumnHeaders();
       createRowHeaders();
       populateData();
-    }
-    
+    }   
   }
 
   protected void removeAllRows() {
@@ -118,13 +117,15 @@ public class OlapTable extends FlexTable {
       	}
       }
     } else {
-      for (int row=0; row<headerData.length; row++) {
+    	int addition = showParentMembers ? 0 : -1;
+    	for (int row=0; row<headerData.length; row++) {
       	for (int column=0; column<headerData[row].length; column++) {
       		CellInfo cellInfo = headerData[row][column];
       		if (cellInfo != null) {
       			Label label = new Label(cellInfo.getFormattedValue());
       			label.addStyleName(OLAP_COL_HEADER_LABEL);
       			cellFormatter.addStyleName(row, showParentMembers ? column + olapData.getRowHeaders().getAcrossCount() : column + 1, OLAP_COL_HEADER_CELL);
+      			// aki tinha +1 antes do label (em cima tbm, no correspondente)
       			setWidget(row, showParentMembers ? column + olapData.getRowHeaders().getAcrossCount() : column + 1, label);
       		}
       	}
@@ -151,25 +152,10 @@ public class OlapTable extends FlexTable {
     }
     char matrix[][] = createMatrix(headerData.length + columnHeadersHeight, headerData[0].length);
     
-    if (!groupHeaders && showParentMembers) {
-     	for (int column = 0; column < headerData[0].length; column++) {
-      	int currentRow = 0;
-      	Iterator iter = OlapUtils.getCellSpans(OlapUtils.extractColumn(headerData, column)).iterator();
-      	while (iter.hasNext()) {
-      		CellSpanInfo spanInfo = (CellSpanInfo) iter.next();
-      		Label label = new Label(spanInfo.getInfo().getFormattedValue());
-      		label.addStyleName(OLAP_ROW_HEADER_LABEL);
-      		int offsetColumn = getFirstUnusedColumnForRow(columnHeadersHeight + currentRow);
-      		setWidget(columnHeadersHeight + currentRow, offsetColumn, label);
-      		cellFormatter.addStyleName(columnHeadersHeight + currentRow, offsetColumn, OLAP_ROW_HEADER_CELL);
-      		cellFormatter.setRowSpan(columnHeadersHeight + currentRow, offsetColumn, spanInfo.getSpan());
-      		currentRow++;
-      	}
-    	}
-    } else {
-    	for (int coluna=0; coluna < headerData[0].length; coluna++) { // colunas
+    if (groupHeaders) {
+    	for (int column=0; column < headerData[0].length; column++) { // columns
 
-    		CellInfo actualColumn[] = OlapUtils.extractColumn(headerData, coluna);
+    		CellInfo actualColumn[] = OlapUtils.extractColumn(headerData, column);
     		if (actualColumn == null || actualColumn.length == 0)
 				continue;			    		
     		Iterator iter = OlapUtils.getCellSpans(actualColumn).iterator();
@@ -184,9 +170,8 @@ public class OlapTable extends FlexTable {
           		label.addStyleName(OLAP_ROW_HEADER_LABEL);
 
           		int newColumn = offset;
-          		matrix[columnHeadersHeight + actualRow][coluna] = USED;
+          		matrix[columnHeadersHeight + actualRow][column] = USED;
           		spanMatrixRow(matrix, columnHeadersHeight + actualRow, newColumn, spanInfo.getSpan());
-          		printMatrix(matrix);
           		
           		cellFormatter.setRowSpan(columnHeadersHeight + actualRow , 
           				newColumn - getSpanInRow(matrix, columnHeadersHeight +actualRow), spanInfo.getSpan());
@@ -204,6 +189,25 @@ public class OlapTable extends FlexTable {
     		offset++;
     	}
     }
+    else 
+    {
+    	int rowAddition = showParentMembers ? columnHeadersHeight : 1;
+    	int columnAddition = showParentMembers ? 0 : -1 ;
+    	for (int row=0; row<headerData.length; row++) {
+           	for (int column=0; column<headerData[row].length; column++) {
+           		CellInfo cellInfo = headerData[row][column];
+           		if (cellInfo != null) {
+           			Label label = new Label(cellInfo.getFormattedValue());
+           			label.addStyleName(OLAP_ROW_HEADER_CELL);
+           			cellFormatter.addStyleName(row + rowAddition, 
+           					showParentMembers ? column : column, OLAP_ROW_HEADER_CELL);
+           					//showParentMembers ? column + olapData.getRowHeaders().getAcrossCount() : column + 1, OLAP_COL_HEADER_CELL);
+           			setWidget(row + rowAddition, 
+           					showParentMembers ? column : column, label);
+           		}
+           	}
+         }//for
+    }//else
   }
   
   /*
