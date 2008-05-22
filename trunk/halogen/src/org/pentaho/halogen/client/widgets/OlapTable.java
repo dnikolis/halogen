@@ -78,13 +78,13 @@ public class OlapTable extends FlexTable {
   
   public void refresh() {
     removeAllRows();
-
+    
     if (olapData != null) {
-      removeAllRows();
     	createColumnHeaders();
       createRowHeaders();
       populateData();
-    }   
+    }
+    
   }
 
   protected void removeAllRows() {
