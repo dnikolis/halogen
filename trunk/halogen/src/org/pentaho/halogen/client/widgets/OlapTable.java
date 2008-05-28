@@ -135,7 +135,7 @@ public class OlapTable extends FlexTable {
   
   protected void createRowHeaders() {
   	FlexCellFormatter cellFormatter = getFlexCellFormatter();
-  	int columnHeadersHeight = olapData.getColumnHeaders().getDownCount();
+  	int columnHeadersHeight = showParentMembers ? olapData.getColumnHeaders().getDownCount() : 2;
   	
   	int rowHeadersHeight = olapData.getRowHeaders().getDownCount();
   	int rowHeadersWidth = olapData.getRowHeaders().getAcrossCount();
