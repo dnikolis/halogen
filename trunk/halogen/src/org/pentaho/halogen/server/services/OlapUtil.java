@@ -158,6 +158,7 @@ public class OlapUtil {
     ColumnHeaders columnHeaders = new ColumnHeaders(cellGrid);
     
     // Populate the row members
+    int maxWidth = getMaxDepth4Positions(rowPositions);
     cellGrid = new CellInfo[rowPositions.size()][];
     for (int r=0; r<rowPositions.size(); r++) {
       Position rowPosition = rowPositions.get(r);
@@ -171,7 +172,7 @@ public class OlapUtil {
         	mbrInfoList.add(cellInfo);
         }
       }
-      CellInfo[] cellInfoRow = new CellInfo[mbrInfoList.size()];
+      CellInfo[] cellInfoRow = new CellInfo[maxWidth];
       cellInfoRow = mbrInfoList.toArray(cellInfoRow);
       cellGrid[r] = cellInfoRow;
     }
