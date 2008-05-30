@@ -17,9 +17,9 @@
 
 package org.pentaho.halogen.client.panels;
 
+import org.pentaho.halogen.client.events.SourcesConnectionEvents;
 import org.pentaho.halogen.client.listeners.ConnectionListener;
 import org.pentaho.halogen.client.listeners.ConnectionListenerCollection;
-import org.pentaho.halogen.client.listeners.SourcesConnectionEvents;
 import org.pentaho.halogen.client.util.GuidFactory;
 import org.pentaho.halogen.client.util.MessageFactory;
 import org.pentaho.halogen.client.util.ServiceFactory;
@@ -70,7 +70,8 @@ public class ConnectionPanel extends FlexTable implements TabListener, SourcesCo
     connectionText.setWidth("300px"); //$NON-NLS-1$
     connectionText.setHeight("100px"); //$NON-NLS-1$
     connectionText.setText("jdbc:mondrian:Jdbc=jdbc:mysql://localhost:3306/foodmart?user=foodmart&password=foodmart;"+ //$NON-NLS-1$
-                           "Catalog=/Users/wseyler/Downloads/mondrian-2.4.2.9831/demo/FoodMart.xml"); //$NON-NLS-1$
+//                           "Catalog=/Users/wseyler/Downloads/mondrian-2.4.2.9831/demo/FoodMart.xml"); //$NON-NLS-1$
+                           "Catalog=/Users/wseyler/Documents/lib-src/mondrian-3.0.3.11016/demo/FoodMart.xml"); //$NON-NLS-1$
     this.setWidget(0, 1, connectionText);
     connectBtn = new Button(MessageFactory.getInstance().connect());
     connectBtn.addClickListener(new ClickListener() {

@@ -18,6 +18,7 @@
 package org.pentaho.halogen.client.services;
 
 
+import org.pentaho.halogen.client.util.ChartPrefs;
 import org.pentaho.halogen.client.util.OlapData;
 import org.pentaho.halogen.client.util.StringTree;
 
@@ -42,5 +43,5 @@ public interface Olap4JService extends RemoteService {
   public Boolean createSelection(String dimName, String[] memberNames, Integer selectionType, String guid);
   public Boolean clearSelection(String dimName, String[] memberNames, String guid);
   public OlapData swapAxis(String guid);
-  public String createChart(OlapData olapData);
+  public String createChart(OlapData olapData, ChartPrefs chartPrefs);
 }
