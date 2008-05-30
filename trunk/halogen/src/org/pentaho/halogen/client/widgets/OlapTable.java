@@ -76,6 +76,10 @@ public class OlapTable extends FlexTable {
     }
   }
   
+  public OlapData getData() {
+    return olapData;
+  }
+  
   public void refresh() {
     removeAllRows();
 

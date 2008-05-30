@@ -3,7 +3,7 @@ package org.pentaho.halogen.client;
 
 /**
  * Interface to represent the messages contained in resource  bundle:
- * 	/Users/wseyler/Documents/workspace/halogen/src/org/pentaho/halogen/client/Messages.properties'.
+ * 	/Users/wseyler/Documents/workspace-trunk/halogen/src/org/pentaho/halogen/client/Messages.properties'.
  */
 public interface Messages extends com.google.gwt.i18n.client.Messages {
   
@@ -11,7 +11,7 @@ public interface Messages extends com.google.gwt.i18n.client.Messages {
    * Translated "Row Dimensions".
    * 
    * @return translated "Row Dimensions"
-   * @gwt.key row_dimensions
+   *  row_dimensions
    */
   String row_dimensions();
 
@@ -19,15 +19,31 @@ public interface Messages extends com.google.gwt.i18n.client.Messages {
    * Translated "Connection String:".
    * 
    * @return translated "Connection String:"
-   * @gwt.key connection_string
+   *  connection_string
    */
   String connection_string();
+
+  /**
+   * Translated "Top".
+   * 
+   * @return translated "Top"
+   *  top
+   */
+  String top();
+
+  /**
+   * Translated "OK".
+   * 
+   * @return translated "OK"
+   *  ok
+   */
+  String ok();
 
   /**
    * Translated "Select Cube".
    * 
    * @return translated "Select Cube"
-   * @gwt.key select_cube
+   *  select_cube
    */
   String select_cube();
 
@@ -35,7 +51,7 @@ public interface Messages extends com.google.gwt.i18n.client.Messages {
    * Translated "Next".
    * 
    * @return translated "Next"
-   * @gwt.key next
+   *  next
    */
   String next();
 
@@ -43,7 +59,7 @@ public interface Messages extends com.google.gwt.i18n.client.Messages {
    * Translated "Execute MDX".
    * 
    * @return translated "Execute MDX"
-   * @gwt.key execute_mdx
+   *  execute_mdx
    */
   String execute_mdx();
 
@@ -51,7 +67,7 @@ public interface Messages extends com.google.gwt.i18n.client.Messages {
    * Translated "No Data Available.  Query may be invalid.".
    * 
    * @return translated "No Data Available.  Query may be invalid."
-   * @gwt.key no_data
+   *  no_data
    */
   String no_data();
 
@@ -59,7 +75,7 @@ public interface Messages extends com.google.gwt.i18n.client.Messages {
    * Translated "Unable to get data from server: {0}".
    * 
    * @return translated "Unable to get data from server: {0}"
-   * @gwt.key no_server_data
+   *  no_server_data
    */
   String no_server_data(String arg0);
 
@@ -67,7 +83,7 @@ public interface Messages extends com.google.gwt.i18n.client.Messages {
    * Translated "Member".
    * 
    * @return translated "Member"
-   * @gwt.key member
+   *  member
    */
   String member();
 
@@ -75,15 +91,23 @@ public interface Messages extends com.google.gwt.i18n.client.Messages {
    * Translated "Hide Parents".
    * 
    * @return translated "Hide Parents"
-   * @gwt.key hide_parents
+   *  hide_parents
    */
   String hide_parents();
+
+  /**
+   * Translated "Left".
+   * 
+   * @return translated "Left"
+   *  left
+   */
+  String left();
 
   /**
    * Translated "Selection could not be cleared: {0}".
    * 
    * @return translated "Selection could not be cleared: {0}"
-   * @gwt.key no_selection_cleared
+   *  no_selection_cleared
    */
   String no_selection_cleared(String arg0);
 
@@ -91,15 +115,23 @@ public interface Messages extends com.google.gwt.i18n.client.Messages {
    * Translated "Selections".
    * 
    * @return translated "Selections"
-   * @gwt.key selections
+   *  selections
    */
   String selections();
+
+  /**
+   * Translated "Location:".
+   * 
+   * @return translated "Location:"
+   *  location
+   */
+  String location();
 
   /**
    * Translated "Clear".
    * 
    * @return translated "Clear"
-   * @gwt.key clear_selections
+   *  clear_selections
    */
   String clear_selections();
 
@@ -107,7 +139,7 @@ public interface Messages extends com.google.gwt.i18n.client.Messages {
    * Translated "Group Headers".
    * 
    * @return translated "Group Headers"
-   * @gwt.key group_headers
+   *  group_headers
    */
   String group_headers();
 
@@ -115,7 +147,7 @@ public interface Messages extends com.google.gwt.i18n.client.Messages {
    * Translated "Show Parents".
    * 
    * @return translated "Show Parents"
-   * @gwt.key show_parents
+   *  show_parents
    */
   String show_parents();
 
@@ -123,7 +155,7 @@ public interface Messages extends com.google.gwt.i18n.client.Messages {
    * Translated "Execute Query Model".
    * 
    * @return translated "Execute Query Model"
-   * @gwt.key execute_query
+   *  execute_query
    */
   String execute_query();
 
@@ -131,15 +163,23 @@ public interface Messages extends com.google.gwt.i18n.client.Messages {
    * Translated "Disconnect".
    * 
    * @return translated "Disconnect"
-   * @gwt.key disconnect
+   *  disconnect
    */
   String disconnect();
+
+  /**
+   * Translated "Cancel".
+   * 
+   * @return translated "Cancel"
+   *  cancel
+   */
+  String cancel();
 
   /**
    * Translated "Move To Filter".
    * 
    * @return translated "Move To Filter"
-   * @gwt.key move_to_filter
+   *  move_to_filter
    */
   String move_to_filter();
 
@@ -147,15 +187,23 @@ public interface Messages extends com.google.gwt.i18n.client.Messages {
    * Translated "Connection could not be established.  Either you did not press the connect button, or there is a problem with your connection string.".
    * 
    * @return translated "Connection could not be established.  Either you did not press the connect button, or there is a problem with your connection string."
-   * @gwt.key no_connection
+   *  no_connection
    */
   String no_connection();
+
+  /**
+   * Translated "Right".
+   * 
+   * @return translated "Right"
+   *  right
+   */
+  String right();
 
   /**
    * Translated "Column Dimensions".
    * 
    * @return translated "Column Dimensions"
-   * @gwt.key column_dimensions
+   *  column_dimensions
    */
   String column_dimensions();
 
@@ -163,7 +211,7 @@ public interface Messages extends com.google.gwt.i18n.client.Messages {
    * Translated "Move To Row".
    * 
    * @return translated "Move To Row"
-   * @gwt.key move_to_row
+   *  move_to_row
    */
   String move_to_row();
 
@@ -171,7 +219,7 @@ public interface Messages extends com.google.gwt.i18n.client.Messages {
    * Translated "MDX Query:".
    * 
    * @return translated "MDX Query:"
-   * @gwt.key mdx_query
+   *  mdx_query
    */
   String mdx_query();
 
@@ -179,7 +227,7 @@ public interface Messages extends com.google.gwt.i18n.client.Messages {
    * Translated "Welcome.  The current time is {0}.".
    * 
    * @return translated "Welcome.  The current time is {0}."
-   * @gwt.key welcome
+   *  welcome
    */
   String welcome(String arg0);
 
@@ -187,7 +235,7 @@ public interface Messages extends com.google.gwt.i18n.client.Messages {
    * Translated "Filter Dimensions".
    * 
    * @return translated "Filter Dimensions"
-   * @gwt.key filter_dimensions
+   *  filter_dimensions
    */
   String filter_dimensions();
 
@@ -195,7 +243,7 @@ public interface Messages extends com.google.gwt.i18n.client.Messages {
    * Translated "Connection".
    * 
    * @return translated "Connection"
-   * @gwt.key connection
+   *  connection
    */
   String connection();
 
@@ -203,7 +251,7 @@ public interface Messages extends com.google.gwt.i18n.client.Messages {
    * Translated "Swap Axis".
    * 
    * @return translated "Swap Axis"
-   * @gwt.key swap_axis
+   *  swap_axis
    */
   String swap_axis();
 
@@ -211,7 +259,7 @@ public interface Messages extends com.google.gwt.i18n.client.Messages {
    * Translated "Report".
    * 
    * @return translated "Report"
-   * @gwt.key report
+   *  report
    */
   String report();
 
@@ -219,7 +267,7 @@ public interface Messages extends com.google.gwt.i18n.client.Messages {
    * Translated "Siblings".
    * 
    * @return translated "Siblings"
-   * @gwt.key siblings
+   *  siblings
    */
   String siblings();
 
@@ -227,7 +275,7 @@ public interface Messages extends com.google.gwt.i18n.client.Messages {
    * Translated "Dimensions".
    * 
    * @return translated "Dimensions"
-   * @gwt.key dimensions
+   *  dimensions
    */
   String dimensions();
 
@@ -235,7 +283,7 @@ public interface Messages extends com.google.gwt.i18n.client.Messages {
    * Translated "Include Children".
    * 
    * @return translated "Include Children"
-   * @gwt.key include_children
+   *  include_children
    */
   String include_children();
 
@@ -243,7 +291,7 @@ public interface Messages extends com.google.gwt.i18n.client.Messages {
    * Translated "null".
    * 
    * @return translated "null"
-   * @gwt.key null_value
+   *  null_value
    */
   String null_value();
 
@@ -251,7 +299,7 @@ public interface Messages extends com.google.gwt.i18n.client.Messages {
    * Translated "Ungroup Headers".
    * 
    * @return translated "Ungroup Headers"
-   * @gwt.key ungroup_headers
+   *  ungroup_headers
    */
   String ungroup_headers();
 
@@ -259,7 +307,7 @@ public interface Messages extends com.google.gwt.i18n.client.Messages {
    * Translated "Connection could not be established: {0}".
    * 
    * @return translated "Connection could not be established: {0}"
-   * @gwt.key no_connection_param
+   *  no_connection_param
    */
   String no_connection_param(String arg0);
 
@@ -267,15 +315,23 @@ public interface Messages extends com.google.gwt.i18n.client.Messages {
    * Translated "Use MDX".
    * 
    * @return translated "Use MDX"
-   * @gwt.key use_mdx
+   *  use_mdx
    */
   String use_mdx();
+
+  /**
+   * Translated "Bottom".
+   * 
+   * @return translated "Bottom"
+   *  bottom
+   */
+  String bottom();
 
   /**
    * Translated "Selection mode could not be set: {0}".
    * 
    * @return translated "Selection mode could not be set: {0}"
-   * @gwt.key no_selection_set
+   *  no_selection_set
    */
   String no_selection_set(String arg0);
 
@@ -283,15 +339,23 @@ public interface Messages extends com.google.gwt.i18n.client.Messages {
    * Translated "Use Schema Navigator".
    * 
    * @return translated "Use Schema Navigator"
-   * @gwt.key use_schema_nav
+   *  use_schema_nav
    */
   String use_schema_nav();
+
+  /**
+   * Translated "Visible:".
+   * 
+   * @return translated "Visible:"
+   *  visible
+   */
+  String visible();
 
   /**
    * Translated "Connect".
    * 
    * @return translated "Connect"
-   * @gwt.key connect
+   *  connect
    */
   String connect();
 
@@ -299,7 +363,7 @@ public interface Messages extends com.google.gwt.i18n.client.Messages {
    * Translated "Move To Column".
    * 
    * @return translated "Move To Column"
-   * @gwt.key move_to_column
+   *  move_to_column
    */
   String move_to_column();
 
@@ -307,7 +371,7 @@ public interface Messages extends com.google.gwt.i18n.client.Messages {
    * Translated "Children".
    * 
    * @return translated "Children"
-   * @gwt.key children
+   *  children
    */
   String children();
 }

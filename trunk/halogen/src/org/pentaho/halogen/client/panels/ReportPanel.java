@@ -18,8 +18,12 @@
 package org.pentaho.halogen.client.panels;
 
 import org.pentaho.halogen.client.HalogenTabPanel;
+import org.pentaho.halogen.client.dialog.ChartDialog;
+import org.pentaho.halogen.client.listeners.ChartPrefsListener;
 import org.pentaho.halogen.client.listeners.ConnectionListener;
+import org.pentaho.halogen.client.util.ChartPrefs;
 import org.pentaho.halogen.client.util.GuidFactory;
+import org.pentaho.halogen.client.util.LocationSelectionUtils;
 import org.pentaho.halogen.client.util.MessageFactory;
 import org.pentaho.halogen.client.util.OlapData;
 import org.pentaho.halogen.client.util.ServiceFactory;
@@ -30,7 +34,6 @@ import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.DockPanel;
-import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.MenuItem;
@@ -40,11 +43,12 @@ import com.google.gwt.user.client.ui.Widget;
  * @author wseyler
  *
  */
-public class ReportPanel extends DockPanel implements ConnectionListener {
+public class ReportPanel extends DockPanel implements ConnectionListener, ChartPrefsListener {
 
   OlapTable olapTable;
   Image chart;
-  FlexTable content;
+  DockPanel content;
+  ChartPrefs chartPrefs;
   boolean showGrid = true, showChart = true;
   
   MenuItem showParentsMenuItem;
@@ -60,11 +64,12 @@ public class ReportPanel extends DockPanel implements ConnectionListener {
    * 
    */
   private void init() {
-  	content = new FlexTable(); 	
+    chartPrefs = new ChartPrefs();
+  	content = new DockPanel(); 	
     olapTable = new OlapTable(MessageFactory.getInstance());
-    content.setWidget(0, 0, olapTable);
+    content.add(olapTable, DockPanel.CENTER);
     chart = new Image();
-    content.setWidget(1, 0, chart);
+    content.add(chart, DockPanel.SOUTH);
     
     this.add(content, DockPanel.CENTER);
     this.add(new ReportMenuBar(), DockPanel.NORTH);   
@@ -78,18 +83,7 @@ public class ReportPanel extends DockPanel implements ConnectionListener {
 	
 	      public void onSuccess(Object result1) {
 	        olapTable.setData((OlapData)result1);
-	        ServiceFactory.getInstance().createChart((OlapData)result1, new AsyncCallback() {
-	
-	          public void onFailure(Throwable caught) {
-	            Window.alert(MessageFactory.getInstance().no_server_data(caught.toString()));
-	          }
-	
-	          public void onSuccess(Object result2) {
-	            String url = GWT.getModuleBaseURL() + "ChartServlet?guid=" + (String)result2;
-	            chart.setUrl(url);
-	          }
-	          
-	        });
+	        doCreateChart();
 	      }
 	      
 	      public void onFailure(Throwable caught) {
@@ -99,24 +93,13 @@ public class ReportPanel extends DockPanel implements ConnectionListener {
 	    });
   	}
   }
-  
+   
   public void doExecuteQueryModel() {
     ServiceFactory.getInstance().executeQuery(GuidFactory.getGuid(), new AsyncCallback() {
 
       public void onSuccess(Object result1) {
         olapTable.setData((OlapData)result1);
-        ServiceFactory.getInstance().createChart((OlapData)result1, new AsyncCallback() {
-
-          public void onFailure(Throwable caught) {
-            Window.alert(MessageFactory.getInstance().no_server_data(caught.toString()));
-          }
-
-          public void onSuccess(Object result2) {
-            String url = GWT.getModuleBaseURL() + "ChartServlet?guid=" + (String)result2;
-            chart.setUrl(url);
-          }
-          
-        });
+        doCreateChart();
       }
       
       public void onFailure(Throwable caught) {
@@ -136,25 +119,38 @@ public class ReportPanel extends DockPanel implements ConnectionListener {
 
       public void onSuccess(Object result1) {
         olapTable.setData((OlapData) result1);
-        ServiceFactory.getInstance().createChart((OlapData)result1, new AsyncCallback() {
-
-          public void onFailure(Throwable caught) {
-            Window.alert(MessageFactory.getInstance().no_server_data(caught.toString()));
-          }
-
-          public void onSuccess(Object result2) {
-            String url = GWT.getModuleBaseURL() + "ChartServlet?guid=" + (String)result2;
-            chart.setUrl(url);
-          }
-          
-        });
+        doCreateChart();
       }
       
     });
   	
   }
   
-    /* (non-Javadoc)
+  public void doCreateChart() {
+    OlapData olapData = olapTable.getData();
+    
+    ServiceFactory.getInstance().createChart(olapData, chartPrefs, new AsyncCallback() {
+      
+      public void onFailure(Throwable caught) {
+        Window.alert(MessageFactory.getInstance().no_server_data(caught.toString()));
+      }
+
+      public void onSuccess(Object result2) {
+        String url = GWT.getModuleBaseURL() + "ChartServlet?guid=" + (String)result2;
+        chart.setUrl(url);
+      }
+      
+    });
+  }
+
+
+  public void doChartPrefs() {
+    ChartDialog chartDialog = new ChartDialog(chartPrefs);
+    chartDialog.addChartPrefsListener(this);
+    chartDialog.show();
+  }
+  
+  /* (non-Javadoc)
    * @see org.pentaho.halogen.client.listeners.ConnectionListener#onConnectionBroken(com.google.gwt.user.client.ui.Widget)
    */
   public void onConnectionBroken(Widget sender) {
@@ -224,11 +220,29 @@ public class ReportPanel extends DockPanel implements ConnectionListener {
 
 			// Create the chart menu
 			MenuBar chartMenu = new MenuBar(true);
+			chartMenu.addItem("Chart Preferences...", new Command() {
+        public void execute() {
+          doChartPrefs();
+        }
+			});
 			
 			this.addItem("Report", reportMenu);
 			this.addItem("Grid", gridMenu);
 			this.addItem("Chart", chartMenu);
 		}
   	
+  }
+
+  /* (non-Javadoc)
+   * @see org.pentaho.halogen.client.listeners.ChartPrefsListener#chartPrefsChanged(org.pentaho.halogen.client.util.ChartPrefs)
+   */
+  public void chartPrefsChanged(ChartPrefs newChartPrefs) {
+    if (!chartPrefs.equals(newChartPrefs)) {
+      chartPrefs = newChartPrefs;
+      doCreateChart();
+      if (chartPrefs.isVisible()) {
+        content.add(chart, LocationSelectionUtils.selectorToLocation(chartPrefs.getLocation()));
+      }
+    }
   }
 }

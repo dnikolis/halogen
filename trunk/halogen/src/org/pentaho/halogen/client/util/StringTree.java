@@ -28,16 +28,12 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  */
 public class StringTree implements IsSerializable {
   String value;
-  /**
-   * This field is a List that must always contain StringTree(s)
-   * 
-   * @gwt.typeArgs <org.pentaho.halogen.client.util.StringTree>
-   */
-  List children;
+
+  List<StringTree> children;
   StringTree parent;
   
   public StringTree() {
-    children = new ArrayList();
+    children = new ArrayList<StringTree>();
   }
   public StringTree(String value, StringTree parent) {
     this();
@@ -56,7 +52,7 @@ public class StringTree implements IsSerializable {
   public void addChild(StringTree stringTree) {
     children.add(stringTree);
   }
-  public List getChildren() {
+  public List<StringTree> getChildren() {
     return children;
   } 
   public StringTree getParent() {

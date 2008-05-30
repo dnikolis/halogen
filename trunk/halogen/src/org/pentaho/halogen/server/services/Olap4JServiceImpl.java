@@ -38,9 +38,11 @@ import org.olap4j.query.Query;
 import org.olap4j.query.QueryDimension;
 import org.olap4j.query.Selection;
 import org.pentaho.halogen.client.services.Olap4JService;
+import org.pentaho.halogen.client.util.ChartPrefs;
 import org.pentaho.halogen.client.util.GuidFactory;
 import org.pentaho.halogen.client.util.OlapData;
 import org.pentaho.halogen.client.util.StringTree;
+import org.pentaho.halogen.server.util.ChartPackage;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
@@ -354,9 +356,9 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
   /* (non-Javadoc)
    * @see org.pentaho.halogen.client.services.Olap4JService#createChart(org.pentaho.halogen.client.util.OlapData)
    */
-  public String createChart(OlapData olapData) {
+  public String createChart(OlapData olapData, ChartPrefs chartPrefs) {
     String olapDataGuid = "olapData"+GuidFactory.getGuid();
-    getThreadLocalRequest().getSession().setAttribute(olapDataGuid, olapData);
+    getThreadLocalRequest().getSession().setAttribute(olapDataGuid, new ChartPackage(olapData, chartPrefs));
     return olapDataGuid;
   }
 

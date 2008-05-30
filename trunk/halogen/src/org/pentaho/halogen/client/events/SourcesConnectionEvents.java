@@ -13,7 +13,9 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.pentaho.halogen.client.listeners;
+package org.pentaho.halogen.client.events;
+
+import org.pentaho.halogen.client.listeners.ConnectionListener;
 
 /**
  * A widget that implements this interface sources the events defined by the

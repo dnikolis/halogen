@@ -28,8 +28,10 @@ import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.CategoryDataset;
+import org.pentaho.halogen.client.util.ChartPrefs;
 import org.pentaho.halogen.client.util.OlapData;
 import org.pentaho.halogen.server.services.OlapUtil;
+import org.pentaho.halogen.server.util.ChartPackage;
 
 /**
  * @author wseyler
@@ -44,13 +46,15 @@ public class ChartServlet extends HttpServlet {
     // TODO Auto-generated method stub
 
     String olapDataGuid = req.getParameter("guid"); //$NON-NLS-1$
-    OlapData olapData = (OlapData) req.getSession().getAttribute(olapDataGuid);
+    ChartPackage chartPackage = (ChartPackage) req.getSession().getAttribute(olapDataGuid);
+    OlapData olapData = chartPackage.getOlapData();
+    ChartPrefs chartPrefs = chartPackage.getChartPrefs();
 
     try {
       CategoryDataset categoryDataset = OlapUtil.createCategoryDataset(olapData);
       String categoryAxisName = olapData.getRowHeaders().getCell(0, 0).getFormattedValue();
       String valueAxisName = olapData.getColumnHeaders().getCell(0, 0).getFormattedValue();
-      final JFreeChart chart = ChartFactory.createBarChart("Olap Chart", categoryAxisName, valueAxisName, categoryDataset, PlotOrientation.VERTICAL, true, true, false); //$NON-NLS-1$
+      final JFreeChart chart = ChartFactory.createBarChart(chartPrefs.getChartTitle(), categoryAxisName, valueAxisName, categoryDataset, PlotOrientation.VERTICAL, true, true, false); //$NON-NLS-1$
       resp.setContentType("image/png"); //$NON-NLS-1$
       ChartUtilities.writeChartAsPNG(resp.getOutputStream(), chart, 400, 400);
     } catch (IOException e) {
