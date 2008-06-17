@@ -20,12 +20,15 @@ package org.pentaho.halogen.client.widgets;
 import java.util.Iterator;
 
 import org.pentaho.halogen.client.Messages;
+import org.pentaho.halogen.client.panels.CellFormatPopup;
 import org.pentaho.halogen.client.util.CellInfo;
 import org.pentaho.halogen.client.util.CellSpanInfo;
+import org.pentaho.halogen.client.util.GuidFactory;
 import org.pentaho.halogen.client.util.OlapData;
 import org.pentaho.halogen.client.util.OlapUtils;
 
 import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
@@ -49,6 +52,9 @@ public class OlapTable extends FlexTable {
   boolean groupHeaders = true;
   Messages messages = null;
   
+  private ClickListener clickListener;
+  private CellFormatPopup cellFormatPopup;
+  
   /**
    * @param messages
    */
@@ -64,7 +70,7 @@ public class OlapTable extends FlexTable {
     this(messages);
     this.showParentMembers = showParentMembers;
   }
-
+  
   public void setData(OlapData olapData) {
     setData(olapData, true);
   }
@@ -245,6 +251,7 @@ public class OlapTable extends FlexTable {
 	        if (colorValueStr != null) {
 	          DOM.setElementAttribute(label.getElement(), "style", "background-color: "+cellInfo.getColorValue()+";");   //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 	        }
+	        label.addClickListener(new ClickCellCommand());
 	        setWidget(showParentMembers ? row + olapData.getColumnHeaders().getDownCount() : row + 1, showParentMembers ? getFirstUnusedColumnForRow(row + olapData.getColumnHeaders().getDownCount())/*column + olapData.getRowHeaders().getAcrossCount() */: column + 1, label);
     		}
     	}
@@ -370,5 +377,15 @@ public class OlapTable extends FlexTable {
 			  result++;
 	  
 	  return result;
+  }
+  
+  public class ClickCellCommand implements ClickListener{
+	  public void onClick(Widget sender){
+		  cellFormatPopup =  new CellFormatPopup(GuidFactory.getGuid(), 
+				  sender.getAbsoluteTop(), sender.getAbsoluteLeft(), sender );
+		  cellFormatPopup.show();
+		  //sender.addStyleName(cellFormatPopup.getReturnStyle());
+		  
+	  };
   }
 }

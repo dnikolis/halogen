@@ -386,6 +386,45 @@ a:visited {
 }
 
 /* ------------------------------OLAP Stuff-------------------------------------- */
+.olap-background-red {
+	background-color: red;
+	text-align: right;
+}
+
+.olap-background-green {
+	background-color: green;
+	text-align: right;
+}
+
+.olap-background-yellow {
+	background-color: yellow;
+	text-align: right;
+}
+
+.olap-background-blue {
+	background-color: blue;
+	text-align: right;
+}
+
+.olap-background-white {
+	background-color: white;
+	text-align: right;
+}
+
+.olap-background-black {
+	background-color: black;
+	text-align: right;
+}
+
+.olap-text-bold {
+	font-weight: bold;
+	text-align: right;
+}
+.olap-text-normal {
+	color: normal;
+	text-align: right;
+}
+
 .olap-scroller {
 	border: 1px solid #000;
 	height: 200px;
