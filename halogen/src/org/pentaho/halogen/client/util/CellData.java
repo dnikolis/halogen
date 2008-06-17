@@ -17,13 +17,13 @@
 
 package org.pentaho.halogen.client.util;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
+import java.io.Serializable;
 
 /**
  * @author wseyler
  *
  */
-public class CellData implements IOlapDataStructure, IsSerializable {
+public class CellData implements IOlapDataStructure, Serializable {
   CellInfo[][] olapDataCells;
   
   public CellData() {

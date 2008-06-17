@@ -220,7 +220,7 @@ public class ReportPanel extends DockPanel implements ConnectionListener, ChartP
 
 			// Create the chart menu
 			MenuBar chartMenu = new MenuBar(true);
-			chartMenu.addItem("Chart Preferences...", new Command() {
+			chartMenu.addItem(MessageFactory.getInstance().chart_properties(), new Command() {
         public void execute() {
           doChartPrefs();
         }

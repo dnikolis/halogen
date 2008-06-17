@@ -17,20 +17,18 @@
 
 package org.pentaho.halogen.client.util;
 
-import org.pentaho.halogen.client.dialog.ChartDialog;
-
-import com.google.gwt.user.client.rpc.IsSerializable;
-import com.google.gwt.user.client.ui.DockPanel;
-import com.google.gwt.user.client.ui.DockPanel.DockLayoutConstant;
+import java.io.Serializable;
 
 /**
  * @author wseyler
  *
  */
-public class ChartPrefs implements IsSerializable {
+public class ChartPrefs implements Serializable {
   protected boolean visible = true;
   protected String location = LocationSelectionUtils.BOTTOM_SELECTOR;
-  protected String chartTitle = "Olap Chart";
+  protected String chartTitle = ""; //$NON-NLS-1$
+  protected int chartWidth = 400;
+  protected int chartHeight = 400;
   
   public ChartPrefs() {
     super();
@@ -44,6 +42,8 @@ public class ChartPrefs implements IsSerializable {
     this.visible = chartPrefs.visible;
     this.location = chartPrefs.location;
     this.chartTitle = chartPrefs.chartTitle;
+    this.chartWidth = chartPrefs.chartWidth;
+    this.chartHeight = chartPrefs.chartHeight;
   }
   
   public boolean isVisible() {
@@ -67,6 +67,22 @@ public class ChartPrefs implements IsSerializable {
     this.chartTitle = chartTitle;
   }
   
+  public int getChartWidth() {
+    return chartWidth;
+  }
+
+  public void setChartWidth(int chartWidth) {
+    this.chartWidth = chartWidth;
+  }
+
+  public int getChartHeight() {
+    return chartHeight;
+  }
+
+  public void setChartHeight(int chartHeight) {
+    this.chartHeight = chartHeight;
+  }
+  
   public boolean equals(Object obj) {
     if (!(obj instanceof ChartPrefs)) {
       return false;
@@ -74,7 +90,9 @@ public class ChartPrefs implements IsSerializable {
     ChartPrefs chartPrefs = (ChartPrefs)obj;
     return (this.visible == chartPrefs.isVisible() && 
             this.location == chartPrefs.getLocation() &&
-            this.chartTitle.equals(chartPrefs.getChartTitle()));
+            this.chartTitle.equals(chartPrefs.getChartTitle()) &&
+            this.chartWidth == chartPrefs.getChartWidth() &&
+            this.chartHeight == chartPrefs.getChartHeight());
   }
 
 }

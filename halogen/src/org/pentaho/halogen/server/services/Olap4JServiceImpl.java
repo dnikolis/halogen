@@ -357,7 +357,7 @@ public class Olap4JServiceImpl extends RemoteServiceServlet implements Olap4JSer
    * @see org.pentaho.halogen.client.services.Olap4JService#createChart(org.pentaho.halogen.client.util.OlapData)
    */
   public String createChart(OlapData olapData, ChartPrefs chartPrefs) {
-    String olapDataGuid = "olapData"+GuidFactory.getGuid();
+    String olapDataGuid = "olapData"+GuidFactory.getGuid(); //$NON-NLS-1$
     getThreadLocalRequest().getSession().setAttribute(olapDataGuid, new ChartPackage(olapData, chartPrefs));
     return olapDataGuid;
   }

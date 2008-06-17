@@ -17,16 +17,15 @@
 
 package org.pentaho.halogen.client.util;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
  * @author wseyler
  *
  */
-public class StringTree implements IsSerializable {
+public class StringTree implements Serializable {
   String value;
 
   List<StringTree> children;

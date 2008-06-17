@@ -28,13 +28,12 @@ import com.google.gwt.user.client.ui.ChangeListener;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.DialogBox;
-import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.FocusListener;
 import com.google.gwt.user.client.ui.Grid;
+import com.google.gwt.user.client.ui.KeyboardListenerAdapter;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.user.client.ui.DockPanel.DockLayoutConstant;
 
 public class ChartDialog extends DialogBox implements SourcesChartPrefsEvents {
   
@@ -48,7 +47,7 @@ public class ChartDialog extends DialogBox implements SourcesChartPrefsEvents {
   }
     
   public void init() {
-    content = new Grid(4, 3);
+    content = new Grid(6, 3);
     
     CheckBox visibleCB = new CheckBox(MessageFactory.getInstance().visible());
     visibleCB.setChecked(chartPrefs.isVisible());
@@ -82,7 +81,7 @@ public class ChartDialog extends DialogBox implements SourcesChartPrefsEvents {
     });
     content.setWidget(1, 1, locationLB);
     
-    content.setText(2, 0, "Chart Title:");
+    content.setText(2, 0, MessageFactory.getInstance().chart_title());
     TextBox titleTB = new TextBox();
     titleTB.setText(chartPrefs.getChartTitle());
     titleTB.addFocusListener(new FocusListener() {
@@ -93,6 +92,56 @@ public class ChartDialog extends DialogBox implements SourcesChartPrefsEvents {
       }     
     });
     content.setWidget(2, 1, titleTB);
+    
+    content.setText(3, 0, MessageFactory.getInstance().chart_width());
+    TextBox widthTB = new TextBox();
+    widthTB.setText(Integer.toString(chartPrefs.getChartWidth()));
+    widthTB.addFocusListener(new FocusListener() {
+      public void onFocus(Widget sender) {}
+
+      public void onLostFocus(Widget sender) {
+        chartPrefs.setChartWidth(Integer.parseInt(((TextBox)sender).getText()));
+      }     
+    });
+    widthTB.addKeyboardListener(new KeyboardListenerAdapter() {
+      public void onKeyPress(Widget sender, char keyCode, int modifiers) {
+        if ((!Character.isDigit(keyCode)) && (keyCode != (char) KEY_TAB)
+            && (keyCode != (char) KEY_BACKSPACE)
+            && (keyCode != (char) KEY_DELETE) && (keyCode != (char) KEY_ENTER) 
+            && (keyCode != (char) KEY_HOME) && (keyCode != (char) KEY_END)
+            && (keyCode != (char) KEY_LEFT) && (keyCode != (char) KEY_UP)
+            && (keyCode != (char) KEY_RIGHT) && (keyCode != (char) KEY_DOWN)) {
+          // TextBox.cancelKey() suppresses the current keyboard event.
+          ((TextBox)sender).cancelKey();
+        }
+      }
+    });
+    content.setWidget(3, 1, widthTB);
+    
+    content.setText(4, 0, MessageFactory.getInstance().chart_height());
+    TextBox heightTB = new TextBox();
+    heightTB.setText(Integer.toString(chartPrefs.getChartHeight()));
+    heightTB.addFocusListener(new FocusListener() {
+      public void onFocus(Widget sender) {}
+
+      public void onLostFocus(Widget sender) {
+        chartPrefs.setChartHeight(Integer.parseInt(((TextBox)sender).getText()));
+      }     
+    });
+    heightTB.addKeyboardListener(new KeyboardListenerAdapter() {
+      public void onKeyPress(Widget sender, char keyCode, int modifiers) {
+        if ((!Character.isDigit(keyCode)) && (keyCode != (char) KEY_TAB)
+            && (keyCode != (char) KEY_BACKSPACE)
+            && (keyCode != (char) KEY_DELETE) && (keyCode != (char) KEY_ENTER) 
+            && (keyCode != (char) KEY_HOME) && (keyCode != (char) KEY_END)
+            && (keyCode != (char) KEY_LEFT) && (keyCode != (char) KEY_UP)
+            && (keyCode != (char) KEY_RIGHT) && (keyCode != (char) KEY_DOWN)) {
+          // TextBox.cancelKey() suppresses the current keyboard event.
+          ((TextBox)sender).cancelKey();
+        }
+      }
+    });
+    content.setWidget(4, 1, heightTB);
    
     Button okBtn = new Button(MessageFactory.getInstance().ok());
     okBtn.addClickListener(new ClickListener() {
@@ -101,7 +150,7 @@ public class ChartDialog extends DialogBox implements SourcesChartPrefsEvents {
         chartPrefsListeners.fireChartPrefsChanged(chartPrefs);
       }
     });
-    content.setWidget(3, 2, okBtn);
+    content.setWidget(5, 2, okBtn);
     
     Button cancelBtn = new Button(MessageFactory.getInstance().cancel());
     cancelBtn.addClickListener(new ClickListener() {
@@ -109,7 +158,7 @@ public class ChartDialog extends DialogBox implements SourcesChartPrefsEvents {
         ChartDialog.this.hide();
       }
     });
-    content.setWidget(3, 1, cancelBtn);
+    content.setWidget(5, 1, cancelBtn);
     
     setWidget(content);
   }

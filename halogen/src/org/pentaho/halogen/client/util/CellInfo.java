@@ -17,13 +17,13 @@
 
 package org.pentaho.halogen.client.util;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
+import java.io.Serializable;
 
 /**
  * @author wseyler
  *
  */
-public class CellInfo implements IsSerializable {
+public class CellInfo implements Serializable {
   String formattedValue;
   String rawValue;
   boolean isColumnHeader = false;

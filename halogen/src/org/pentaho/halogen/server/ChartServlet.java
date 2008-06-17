@@ -56,7 +56,7 @@ public class ChartServlet extends HttpServlet {
       String valueAxisName = olapData.getColumnHeaders().getCell(0, 0).getFormattedValue();
       final JFreeChart chart = ChartFactory.createBarChart(chartPrefs.getChartTitle(), categoryAxisName, valueAxisName, categoryDataset, PlotOrientation.VERTICAL, true, true, false); //$NON-NLS-1$
       resp.setContentType("image/png"); //$NON-NLS-1$
-      ChartUtilities.writeChartAsPNG(resp.getOutputStream(), chart, 400, 400);
+      ChartUtilities.writeChartAsPNG(resp.getOutputStream(), chart, chartPrefs.getChartWidth(), chartPrefs.getChartHeight());
     } catch (IOException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();

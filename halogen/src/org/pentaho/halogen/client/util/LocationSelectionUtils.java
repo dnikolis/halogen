@@ -17,6 +17,8 @@
 
 package org.pentaho.halogen.client.util;
 
+import java.io.Serializable;
+
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.DockPanel.DockLayoutConstant;
 
@@ -24,7 +26,7 @@ import com.google.gwt.user.client.ui.DockPanel.DockLayoutConstant;
  * @author wseyler
  *
  */
-public class LocationSelectionUtils {
+public class LocationSelectionUtils implements Serializable {
   public static final String TOP_SELECTOR    = "0"; //$NON-NLS-1$
   public static final String BOTTOM_SELECTOR = "1"; //$NON-NLS-1$
   public static final String LEFT_SELECTOR   = "2"; //$NON-NLS-1$
