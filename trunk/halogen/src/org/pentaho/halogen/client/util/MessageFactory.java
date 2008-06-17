@@ -17,6 +17,8 @@
 
 package org.pentaho.halogen.client.util;
 
+import java.io.Serializable;
+
 import org.pentaho.halogen.client.Messages;
 
 import com.google.gwt.core.client.GWT;
@@ -25,7 +27,7 @@ import com.google.gwt.core.client.GWT;
  * @author wseyler
  *
  */
-public class MessageFactory {
+public class MessageFactory implements Serializable {
   static Messages messages = null;
   public static Messages getInstance() {
     if (messages == null) {
