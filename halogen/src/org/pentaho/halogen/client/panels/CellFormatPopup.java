@@ -71,7 +71,7 @@ public class CellFormatPopup extends PopupPanel {
 	
 	public class CellFormatCommand implements Command
 	{
-		String style;
+		String style = "";
 		
 		public CellFormatCommand(String style){
 			this.style = style;
@@ -80,17 +80,20 @@ public class CellFormatPopup extends PopupPanel {
 			Widget widget = getSource();
 			widget.addStyleName(style);
 			setReturnStyle(style);
-			String oldStyle = new String();
+			String oldStyle = new String("");
 			
 			if (style.contains("olap-text-"))
-				if (sender.getStyleName().indexOf("olap-background-") >=0 )
+			{
+				if (sender.getStyleName().contains("olap-background-"))
 					oldStyle = sender.getStyleName().substring(sender.getStyleName().indexOf("olap-background-"), 
 					sender.getStyleName().indexOf(" ", sender.getStyleName().indexOf("olap-background-")));
+			}
 			else
-				if (sender.getStyleName().indexOf("olap-text-") >=0 )
+			{
+				if (sender.getStyleName().contains("olap-text-"))
 					oldStyle = sender.getStyleName().substring(sender.getStyleName().indexOf("olap-text-"), 
 					sender.getStyleName().indexOf(" ", sender.getStyleName().indexOf("olap-text-")));
-
+			}
 			sender.setStyleName(oldStyle);
 			sender.addStyleName(style);
 			CellFormatPopup.this.hide();
