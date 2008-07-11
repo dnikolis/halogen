@@ -21,12 +21,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.pentaho.halogen.client.listeners.ConnectionListener;
+import org.pentaho.halogen.client.util.DraggableTree;
 import org.pentaho.halogen.client.util.GuidFactory;
+import org.pentaho.halogen.client.util.ListBoxDragController;
+import org.pentaho.halogen.client.util.ListBoxDropController;
 import org.pentaho.halogen.client.util.MessageFactory;
 import org.pentaho.halogen.client.util.ServiceFactory;
 import org.pentaho.halogen.client.util.StringTree;
 import org.pentaho.halogen.client.widgets.MemberSelectionLabel;
+import org.pentaho.halogen.client.widgets.MouseListBox;
 
+import com.allen_sauer.gwt.dnd.client.drop.DropController;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.ChangeListener;
@@ -34,6 +39,7 @@ import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.Tree;
@@ -45,29 +51,33 @@ import com.google.gwt.user.client.ui.Widget;
  *
  */
 public class DimensionPanel extends FlexTable implements ConnectionListener {
-  private static final String AXIS_NONE = "none"; //$NON-NLS-1$
-  private static final String AXIS_UNUSED = "UNUSED"; //$NON-NLS-1$
-  private static final String AXIS_FILTER = "FILTER"; //$NON-NLS-1$
-  private static final String AXIS_COLUMNS = "COLUMNS"; //$NON-NLS-1$
-  private static final String AXIS_ROWS = "ROWS"; //$NON-NLS-1$
-  private static final String AXIS_PAGES = "PAGES"; //$NON-NLS-1$
-  private static final String AXIS_CHAPTERS = "CHAPTERS"; //$NON-NLS-1$
-  private static final String AXIS_SECTIONS = "SECTIONS"; //$NON-NLS-1$
-
+  public static final String AXIS_NONE = "none"; //$NON-NLS-1$
+  public static final String AXIS_UNUSED = "UNUSED"; //$NON-NLS-1$
+  public static final String AXIS_FILTER = "FILTER"; //$NON-NLS-1$
+  public static final String AXIS_COLUMNS = "COLUMNS"; //$NON-NLS-1$
+  public static final String AXIS_ROWS = "ROWS"; //$NON-NLS-1$
+  public static final String AXIS_PAGES = "PAGES"; //$NON-NLS-1$
+  public static final String AXIS_CHAPTERS = "CHAPTERS"; //$NON-NLS-1$
+  public static final String AXIS_SECTIONS = "SECTIONS"; //$NON-NLS-1$
+  
   Button moveToRowButton;
   Button moveToColButton;
   Button moveToFilterButton;
-  ListBox dimensionsList;
   ListBox cubeListBox;
-  FlexTable rowDimensions;
-  FlexTable colDimensions;
-  FlexTable filterDimensions;
   TextArea mdxText;
   
   SelectionModePopup selectionModePopup;
   
   ClickListener memberClickListener;
   
+  //PickupDragController dragController;
+  
+  ListBoxDragController dragController;
+  DropController dropController;
+  ListBoxDropController rightDropController;
+  
+  MouseListBox dimensionsList, rowDimensions, colDimensions, filterDimensions ;
+
   public DimensionPanel() {
     super();
 
@@ -95,116 +105,65 @@ public class DimensionPanel extends FlexTable implements ConnectionListener {
     this.setText(0, 1, MessageFactory.getInstance().select_cube());
     this.setWidget(0, 2, cubeListBox);
 
-    // Set up the Dimensions List
     this.setText(1, 0, MessageFactory.getInstance().dimensions());
     this.setText(1, 1, MessageFactory.getInstance().row_dimensions());
     this.setText(1, 2, MessageFactory.getInstance().column_dimensions());
     this.setText(1, 3, MessageFactory.getInstance().filter_dimensions());
     
-    dimensionsList = new ListBox();
-    dimensionsList.addClickListener(new ClickListener() {
-      public void onClick(Widget sender) {
-        updateMoveButtons();
-      }     
-    });
-    dimensionsList.setWidth("150px"); //$NON-NLS-1$
-    dimensionsList.setVisibleItemCount(14);
-    this.setWidget(2, 0, dimensionsList);
+//    dimensionsList = new ListBox();
+//    dimensionsList.addClickListener(new ClickListener() {
+//      public void onClick(Widget sender) {
+//        updateMoveButtons();
+//      }     
+//    });
+//    dimensionsList.setWidth("150px"); //$NON-NLS-1$
+//    dimensionsList.setVisibleItemCount(14);
+    initDragNDropComponents(2, 0);
+    //this.setWidget(2, 0, dimensionsList);
     
-    // Set up the Row Dimensions List
-    rowDimensions = new FlexTable();
-    ScrollPanel scroller = new ScrollPanel(rowDimensions);
-    scroller.addStyleName("olap-scroller"); //$NON-NLS-1$
-    scroller.setWidth("200px"); //$NON-NLS-1$
-    this.setWidget(2, 1, scroller);
-
-    // Set up the Column Dimensions List   
-    colDimensions = new FlexTable();
-    scroller = new ScrollPanel(colDimensions);
-    scroller.addStyleName("olap-scroller"); //$NON-NLS-1$
-    scroller.setWidth("200px"); //$NON-NLS-1$
-    this.setWidget(2, 2, scroller);
-
-    // Set up the Filter Dimensions List
-    filterDimensions = new FlexTable();
-    scroller = new ScrollPanel(filterDimensions);
-    scroller.addStyleName("olap-scroller"); //$NON-NLS-1$
-    scroller.setWidth("200px"); //$NON-NLS-1$
-    this.setWidget(2, 3, scroller);
-
     // Set up the Move To Row Button
     moveToRowButton = new Button(MessageFactory.getInstance().move_to_row());
     moveToRowButton.addClickListener(new ClickListener() {
-      public void onClick(Widget sender) {
-        String dimName = dimensionsList.getValue(dimensionsList.getSelectedIndex());
-        ServiceFactory.getInstance().moveDimension(AXIS_ROWS, dimName, GuidFactory.getGuid(), new AsyncCallback() {
-          public void onSuccess(Object result) {
-            boolean success = ((Boolean)result).booleanValue();
-            if (success) {
-              List axis = new ArrayList();
-              axis.add(AXIS_NONE);
-              axis.add(AXIS_ROWS);
-              populateDimensions(axis);
-            }
-          }          
-         public void onFailure(Throwable caught) {
-            // TODO Auto-generated method stub           
-          }
-
-        });
+      public void onClick(Widget sender) {        
+        for (Widget widget : dragController.getSelectedWidgets(dimensionsList)){
+          String title = ((Label)widget).getText();
+          moveDimensionThroughDropController(title, AXIS_ROWS);
+        }
+        moveItems(dimensionsList, rowDimensions);        
       }     
     });
     this.setWidget(3, 1, moveToRowButton);
-    moveToRowButton.setEnabled(false);
-    
-    // Set up the Move To Column Button
+    moveToRowButton.setEnabled(true);
+//    
+//    // Set up the Move To Column Button
     moveToColButton = new Button(MessageFactory.getInstance().move_to_column());
     moveToColButton.addClickListener(new ClickListener() {
-      public void onClick(Widget sender) {
-        String dimName = dimensionsList.getValue(dimensionsList.getSelectedIndex());
-        ServiceFactory.getInstance().moveDimension(AXIS_COLUMNS, dimName, GuidFactory.getGuid(), new AsyncCallback() {
-          public void onSuccess(Object result) {
-            boolean success = ((Boolean)result).booleanValue();
-            if (success) {
-              List axis = new ArrayList();
-              axis.add(AXIS_NONE);
-              axis.add(AXIS_COLUMNS);
-              populateDimensions(axis);
-            }
-          }          
-         public void onFailure(Throwable caught) {
-            // TODO Auto-generated method stub           
-          }
-
-        });
+      public void onClick(Widget sender) {        
+        for (Widget widget : dragController.getSelectedWidgets(dimensionsList)){
+          String title = ((Label)widget).getText();
+          moveDimensionThroughDropController(title, AXIS_COLUMNS);
+        }
+        moveItems(dimensionsList, colDimensions);         
       }     
     });
     this.setWidget(3, 2, moveToColButton);
-    moveToColButton.setEnabled(false);
+    moveToColButton.setEnabled(true);
     
+//  // Set up the Move To Filter Button
     moveToFilterButton = new Button(MessageFactory.getInstance().move_to_filter());
     moveToFilterButton.addClickListener(new ClickListener() {
-      public void onClick(Widget sender) {
-        String dimName = dimensionsList.getValue(dimensionsList.getSelectedIndex());
-        ServiceFactory.getInstance().moveDimension(AXIS_FILTER, dimName, GuidFactory.getGuid(), new AsyncCallback() {
-          public void onSuccess(Object result) {
-            boolean success = ((Boolean)result).booleanValue();
-            if (success) {
-              List axis = new ArrayList();
-              axis.add(AXIS_NONE);
-              axis.add(AXIS_FILTER);
-              populateDimensions(axis);
-            }
-          }         
-          public void onFailure(Throwable caught) {
-            // TODO Auto-generated method stub           
-          }
-        });
-      }      
+      public void onClick(Widget sender) {        
+        for (Widget widget : dragController.getSelectedWidgets(dimensionsList)){
+          String title = ((Label)widget).getText();
+          moveDimensionThroughDropController(title, AXIS_FILTER);
+        }
+        moveItems(dimensionsList, filterDimensions);         
+      }     
     });
     this.setWidget(3, 3, moveToFilterButton);
-    moveToFilterButton.setEnabled(false);
-    
+    moveToFilterButton.setEnabled(true);
+
+
     this.setText(4, 0, MessageFactory.getInstance().mdx_query());
     mdxText = new TextArea();
     mdxText.setWidth("300px"); //$NON-NLS-1$
@@ -224,26 +183,123 @@ public class DimensionPanel extends FlexTable implements ConnectionListener {
     this.getFlexCellFormatter().setColSpan(5, 0, 2);
   }
 
-  public void populateDimensions() {
-    List axis = new ArrayList();
-    axis.add(AXIS_NONE);
-    axis.add(AXIS_ROWS);
-    axis.add(AXIS_COLUMNS);
-    axis.add(AXIS_FILTER);
-    populateDimensions(axis);
-  }
-  
   /**
    * 
    */
+  private void initDragNDropComponents(int row, int col)
+  {
+	  dragController = new ListBoxDragController( RootPanel.get() );
+	  
+	  dragController.setBehaviorDragStartSensitivity(1);
+	  dimensionsList = new MouseListBox(dragController, 10);
+	  dimensionsList.setStylePrimaryName("panelBox");
+	  rowDimensions = new MouseListBox(5);
+	  rowDimensions.setStylePrimaryName("panelBox");
+	  colDimensions = new MouseListBox(5);
+	  colDimensions.setStylePrimaryName("panelBox");
+	  filterDimensions = new MouseListBox(5);
+	  filterDimensions.setStylePrimaryName("panelBox");
+	  
+	  dimensionsList.setHeight("50px");
+	  rowDimensions.setHeight("50px");
+	  colDimensions.setHeight("50px");
+	  filterDimensions.setHeight("50px");
+	  
+	  dimensionsList.setWidth("140px");
+	  rowDimensions.setWidth("100px");
+	  colDimensions.setWidth("100px");
+	  filterDimensions.setWidth("100px");
+	  	    
+	  //ListBoxDropController leftDropController = new ListBoxDropController(list1);
+	  rightDropController = new ListBoxDropController(rowDimensions, this, AXIS_ROWS);
+	  //dragController.registerDropController(leftDropController);
+	  dragController.registerDropController(rightDropController);
+	  
+	  dropController = new ListBoxDropController(colDimensions, this, AXIS_COLUMNS);
+	  dragController.addDropController(dropController);
+	  
+	  dropController = new ListBoxDropController(filterDimensions, this, AXIS_FILTER);
+	  dragController.addDropController(dropController);
+	  
+	  ScrollPanel scroller = new ScrollPanel(dimensionsList);
+    scroller.addStyleName("olap-scroller"); //$NON-NLS-1$
+    scroller.setWidth("150px"); //$NON-NLS-1$
+    scroller.setAlwaysShowScrollBars(false);
+    this.setWidget(row, col++, scroller);
+	  
+    scroller = new ScrollPanel(rowDimensions);
+    scroller.addStyleName("olap-scroller"); //$NON-NLS-1$
+    scroller.setWidth("200px"); //$NON-NLS-1$
+    scroller.setAlwaysShowScrollBars(false);
+    this.setWidget(row, col++, scroller);
+    
+    scroller = new ScrollPanel(colDimensions);
+    scroller.addStyleName("olap-scroller"); //$NON-NLS-1$
+    scroller.setWidth("200px"); //$NON-NLS-1$
+    scroller.setAlwaysShowScrollBars(false);
+    this.setWidget(row, col++, scroller);
+
+    scroller = new ScrollPanel(filterDimensions);
+    scroller.addStyleName("olap-scroller"); //$NON-NLS-1$
+    scroller.setWidth("200px"); //$NON-NLS-1$
+    scroller.setAlwaysShowScrollBars(false);
+    this.setWidget(row, col++, scroller);
+
+  }
+  
+  public void addItemToMouseListBox (MouseListBox mouseList, Widget item) {
+    if (mouseList.getCapacitySize() <= mouseList.getWidgetCount()){
+      mouseList.increaseGridSize();
+    }
+    mouseList.add(item);
+  }
+  
+  protected void moveItems(MouseListBox from, MouseListBox to) {
+    List<Widget> widgetList = dragController.getSelectedWidgets(from);
+    for (Widget widget : widgetList) {
+      // TODO let widget.removeFromParent() take care of from.remove()
+      from.remove(widget);
+      to.add(widget);      
+    }
+  }
+  
+  public void moveDimensionThroughDropController (String dim, String axis){
+    if (rightDropController != null)
+      rightDropController.moveDimension(dim, axis);      
+  }
+  
+  public void populateDimensions() {
+	List axis = new ArrayList();
+	axis.add(AXIS_NONE);
+	axis.add(AXIS_ROWS);
+	axis.add(AXIS_COLUMNS);
+	axis.add(AXIS_FILTER);
+	populateDimensions(axis);
+}
+	  
+
   public void populateDimensions( List axis) {
     if (axis.contains(AXIS_NONE)) {
       ServiceFactory.getInstance().getDimensions(AXIS_NONE, GuidFactory.getGuid(), new AsyncCallback() {
         public void onSuccess(Object result) {
           String[] dimStrs = (String[]) result;
-          dimensionsList.clear();
+//          dimensionsList.clear();
+          
+          ArrayList<Widget> widgetsList = dimensionsList.widgetList();
+          for (Widget widget: widgetsList) 
+            dimensionsList.remove(widget);
+          
           for (int i=0; i<dimStrs.length; i++) {
-            dimensionsList.addItem(dimStrs[i]);
+            //dimensionsList.addItem(dimStrs[i]);
+            Label label = new Label(dimStrs[i]);
+            label.addClickListener(new ClickListener() {
+
+              public void onClick(Widget arg0) {
+                updateMoveButtons();
+              }
+              
+            });
+            addItemToMouseListBox (dimensionsList, label);
           }
           updateMoveButtons();
         }
@@ -260,18 +316,30 @@ public class DimensionPanel extends FlexTable implements ConnectionListener {
       ServiceFactory.getInstance().getDimensions(AXIS_ROWS, GuidFactory.getGuid(), new AsyncCallback() {
   
         public void onSuccess(Object result) {
-          String[] dimStrs = (String[]) result;
-          rowDimensions.clear();
+          String[] dimStrs = (String[]) result;          
+          
+          ArrayList<Widget> widgetsList = rowDimensions.widgetList();
+          for (Widget widget: widgetsList) 
+            if (widget instanceof Label)
+              rowDimensions.remove(widget);
+          
+          boolean breakOut;
           for (int i=0; i<dimStrs.length; i++) {
-            rowDimensions.setWidget(i, 0, getDimTree(dimStrs[i]));
+            breakOut = false;
+            for (Widget widget: widgetsList) // if the tree is already showed
+              if (widget instanceof Tree)
+                if (dimStrs[i].equals( ((Tree)widget).getItem(0).getText()))
+                  breakOut = true;
+              
+            if (breakOut == true) continue;
+            DraggableTree tree = getDimTree(dimStrs[i]);
+            addItemToMouseListBox (rowDimensions, tree);
           }
         }
         
         public void onFailure(Throwable caught) {
           // TODO Auto-generated method stub
-          
         }
-  
       });
     }
     
@@ -280,17 +348,28 @@ public class DimensionPanel extends FlexTable implements ConnectionListener {
   
         public void onSuccess(Object result) {
           String[] dimStrs = (String[]) result;
-          colDimensions.clear();
+          
+          ArrayList<Widget> widgetsList = colDimensions.widgetList();
+          for (Widget widget: widgetsList) 
+            if (widget instanceof Label)
+              colDimensions.remove(widget);
+
+          boolean breakOut;
           for (int i=0; i<dimStrs.length; i++) {
-            colDimensions.setWidget(i, 0, getDimTree(dimStrs[i]));
+            breakOut = false;
+            for (Widget widget: widgetsList) // if the tree is already showed
+              if (widget instanceof Tree)
+                if (dimStrs[i].equals( ((Tree)widget).getItem(0).getText()))
+                  breakOut = true;
+              
+            if (breakOut == true) continue;
+            DraggableTree tree = getDimTree(dimStrs[i]);
+            addItemToMouseListBox (colDimensions, tree);
           }
         }
-        
         public void onFailure(Throwable caught) {
           // TODO Auto-generated method stub
-          
         }
-  
       });
     }
     
@@ -299,9 +378,23 @@ public class DimensionPanel extends FlexTable implements ConnectionListener {
 
         public void onSuccess(Object result) {
           String[] dimStrs = (String[]) result;
-          filterDimensions.clear();
+          
+          ArrayList<Widget> widgetsList = filterDimensions.widgetList();
+          for (Widget widget: widgetsList) 
+            if (widget instanceof Label)
+              filterDimensions.remove(widget);
+
+          boolean breakOut;
           for (int i=0; i<dimStrs.length; i++) {
-            filterDimensions.setWidget(i, 0, getDimTree(dimStrs[i]));
+            breakOut = false;
+            for (Widget widget: widgetsList) // if the tree is already showed
+              if (widget instanceof Tree)
+                if (dimStrs[i].equals( ((Tree)widget).getItem(0).getText()))
+                  breakOut = true;
+              
+            if (breakOut == true) continue;
+            DraggableTree tree = getDimTree(dimStrs[i]);
+            addItemToMouseListBox (filterDimensions, tree);
           }
         }
         
@@ -311,10 +404,11 @@ public class DimensionPanel extends FlexTable implements ConnectionListener {
         }     
       });
     }
+    updateMoveButtons();
   }
   
-  protected Tree getDimTree(String dimName) {
-    final Tree dimTree = new Tree();
+  protected DraggableTree getDimTree(String dimName) {
+    final DraggableTree dimTree = new DraggableTree();
     ServiceFactory.getInstance().getMembers(dimName, GuidFactory.getGuid(), new AsyncCallback() {
       public void onSuccess(Object result) {
         StringTree memberTree = (StringTree) result;
@@ -342,7 +436,8 @@ public class DimensionPanel extends FlexTable implements ConnectionListener {
         selectionModePopup.setPopupPosition(sender.getAbsoluteLeft(), sender.getAbsoluteTop());
         selectionModePopup.setSource(sender);
         selectionModePopup.show();
-      }     
+      }
+      
     });
     TreeItem childItem = new TreeItem(memberLabel);
     memberLabel.setTreeItem(childItem);
@@ -375,9 +470,10 @@ public class DimensionPanel extends FlexTable implements ConnectionListener {
   }
 
   protected void updateMoveButtons() {
-    moveToColButton.setEnabled(dimensionsList.getSelectedIndex() != -1);
-    moveToRowButton.setEnabled(dimensionsList.getSelectedIndex() != -1);
-    moveToFilterButton.setEnabled(dimensionsList.getSelectedIndex() != -1);
+    boolean enabled = dragController.getSelectedWidgets(dimensionsList).size() > 0 ? true : false;      
+    moveToColButton.setEnabled(enabled);
+    moveToRowButton.setEnabled(enabled);
+    moveToFilterButton.setEnabled(enabled);
   }
 
   /* (non-Javadoc)

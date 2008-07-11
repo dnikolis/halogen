@@ -388,7 +388,6 @@ a:visited {
 /* ------------------------------OLAP Stuff-------------------------------------- */
 .olap-background-red {
 	background-color: red;
-	text-align: right;
 }
 
 .olap-background-green {
@@ -398,17 +397,15 @@ a:visited {
 
 .olap-background-yellow {
 	background-color: yellow;
-	text-align: right;
+
 }
 
 .olap-background-blue {
 	background-color: blue;
-	text-align: right;
 }
 
 .olap-background-white {
 	background-color: white;
-	text-align: right;
 }
 
 .olap-background-black {
@@ -461,4 +458,70 @@ a:visited {
 
 .olap-table {
 	background-color: #C3D9FF
+}
+/*  The settings for DnD follows below */
+
+HTML { /* Workaround for GWT issue 1932 */
+  margin: 2px !important;
+  /* border: none !important; */
+  border: 2px !important;
+}
+
+.dragdrop-handle {
+  /* sem estar selecionado */
+  cursor: move;
+  user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+}
+
+.dragdrop-draggable {
+  zoom: 1; /* IE gain hasLayout */
+}
+
+.dragdrop-dragging {
+  zoom: normal; /* remove artifacts */
+  color:purple;
+}
+
+.dragdrop-positioner {
+  border: 1px dashed #1E90FF; /* blue */
+  margin: 0px !important;
+  zoom: 1; /* IE gain hasLayout */
+  z-index: 100;
+  color:green;
+}
+
+.dragdrop-flow-panel-positioner {
+  /* color: #1E90FF;  blue */
+  display: inline;
+  text-align: center;
+  vertical-align: middle;
+  color: red
+}
+
+.dragdrop-proxy {
+  background-color: #77AAFF; /* light blue */
+  color:brown;
+}
+.dragdrop-selected,.dragdrop-dragging,.dragdrop-proxy {
+  /* o original qndo o mouse está sendo movido (e não o que o está sendo usado pelo mouse */
+/*  filter: alpha(opacity = 30);
+  opacity: 0.3; */
+  filter: alpha(opacity = 100);
+  opacity: 1;
+  /* color: black; */
+  background-color: blue;
+}
+
+.dragdrop-movable-panel {
+  z-index: 200;
+  margin: 2px !important;
+  border: 2px;
+  /*  border: none !important; */
+}
+.panelBox {
+/*	border: 1px solid #000; */
+	background-color: white;
+/*	  margin: 0.4em;*/
 }
