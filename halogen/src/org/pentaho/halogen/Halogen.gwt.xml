@@ -1,7 +1,9 @@
 <module>
     <!-- Inherit all the google stuff -->
 	<inherits name='com.google.gwt.user.User'/>
-  
+    <!-- Inherit gwt-dnd 2.x support               -->
+    <inherits name='com.allen_sauer.gwt.dnd.gwt-dnd'/>
+    
 	<entry-point class='org.pentaho.halogen.client.Halogen'/>
     <servlet path="/olap4j" class="org.pentaho.halogen.server.services.Olap4JServiceImpl"/>
     <servlet path="/ChartServlet" class="org.pentaho.halogen.server.ChartServlet"/>
