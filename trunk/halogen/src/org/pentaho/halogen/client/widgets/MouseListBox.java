@@ -7,6 +7,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.pentaho.halogen.client.util.ListBoxDragController;
 
@@ -35,6 +36,8 @@ public class MouseListBox extends Composite {
   private Grid grid;
  
   private int widgetCount = 0;
+  
+  private List<Widget> widgetList = null;
 
   /**
    * Used by {@link ListBoxDragController} to create a draggable listbox
@@ -46,6 +49,7 @@ public class MouseListBox extends Composite {
     grid.setBorderWidth(0);
     grid.setCellPadding(0);
     grid.setCellSpacing(0);
+    widgetList = new ArrayList<Widget>();
     
     //addStyleName(CSS_DEMO_MOUSELISTBOX);
     for (int i = 0; i < size; i++) {
@@ -82,6 +86,13 @@ public class MouseListBox extends Composite {
 
   public void add(Widget widget) {
     setWidget(widgetCount++, widget);
+    widgetList.add(widget);
+  }
+  
+  public void clear(){
+    for (Widget widget : widgetList){
+      remove(widget);
+    }
   }
 
   public int getWidgetCount() {
@@ -144,5 +155,13 @@ public class MouseListBox extends Composite {
       }
     }
     grid.setWidget(index, 0, widget);
+  }
+
+  public void setGrid(Grid grid) {
+    this.grid = grid;
+  }
+
+  public List<Widget> getWidgetList() {
+    return widgetList;
   }
 }
