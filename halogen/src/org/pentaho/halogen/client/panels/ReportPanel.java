@@ -17,12 +17,16 @@
 
 package org.pentaho.halogen.client.panels;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.pentaho.halogen.client.HalogenTabPanel;
 import org.pentaho.halogen.client.dialog.ChartDialog;
 import org.pentaho.halogen.client.listeners.ChartPrefsListener;
 import org.pentaho.halogen.client.listeners.ConnectionListener;
 import org.pentaho.halogen.client.util.ChartPrefs;
 import org.pentaho.halogen.client.util.GuidFactory;
+import org.pentaho.halogen.client.util.ListBoxDragController;
 import org.pentaho.halogen.client.util.LocationSelectionUtils;
 import org.pentaho.halogen.client.util.MessageFactory;
 import org.pentaho.halogen.client.util.OlapData;
@@ -34,9 +38,11 @@ import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.DockPanel;
+import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.MenuItem;
+import com.google.gwt.user.client.ui.Tree;
 import com.google.gwt.user.client.ui.Widget;
 
 /**
@@ -54,10 +60,15 @@ public class ReportPanel extends DockPanel implements ConnectionListener, ChartP
   MenuItem showParentsMenuItem;
   MenuItem groupHeadersMenuItem;
   
-  public ReportPanel() {
+  DimensionPanel dimensionPanel;
+  ListBoxDragController dragController;
+  
+  
+  public ReportPanel(DimensionPanel dPanel) {
     super();
 
     init();
+   dimensionPanel = dPanel;
   }
 
   /**
@@ -120,6 +131,28 @@ public class ReportPanel extends DockPanel implements ConnectionListener, ChartP
       public void onSuccess(Object result1) {
         olapTable.setData((OlapData) result1);
         doCreateChart();
+        
+          //Save the previous UI state
+        List<Widget> rowWidgets = new ArrayList<Widget>(dimensionPanel.rowDimensions.getWidgetList());
+        List<Widget> colWidgets = new ArrayList<Widget>(dimensionPanel.colDimensions.getWidgetList());
+
+        //clear the UI
+        dimensionPanel.colDimensions.clear();
+        dimensionPanel.rowDimensions.clear();
+        
+        //restore the UI
+        for (int i = 0; i < rowWidgets.size(); i++){
+          if (rowWidgets.get(i) instanceof Tree){
+            Tree t = (Tree)rowWidgets.get(i);
+            dimensionPanel.addItemToMouseListBox(dimensionPanel.colDimensions, t);
+          }
+        }
+        for (int i = 0; i < colWidgets.size(); i++)
+          if (colWidgets.get(i) instanceof Tree){
+            Tree t = (Tree) colWidgets.get(i);
+            dimensionPanel.addItemToMouseListBox(dimensionPanel.rowDimensions, t);
+          }
+
       }
       
     });

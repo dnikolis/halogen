@@ -43,7 +43,7 @@ public class HalogenTabPanel extends TabPanel {
   private void init() {
     dimensionPanel = new DimensionPanel();
     ConnectionPanel connectionPanel = new ConnectionPanel();
-    ReportPanel reportPanel = new ReportPanel();
+    ReportPanel reportPanel = new ReportPanel(dimensionPanel);
 
     connectionPanel.addConnectionListener(dimensionPanel);
     connectionPanel.addConnectionListener(reportPanel);
